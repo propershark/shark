@@ -1,0 +1,111 @@
+body {
+  background-color: #777;
+  font-family: 'Avenir';
+}
+
+.container {
+  margin: 10px auto 0 auto;
+  padding: 0;
+  width: 375px;
+  height: 667px;
+  background: #fff;
+  position: relative;
+}
+
+.content {
+  margin: 0 10px;
+}
+
+.iphone-header {
+  height: 60px;
+  width: 100%;
+  background-color: #ddd;
+  border-bottom: 1px solid #777;
+}
+
+.iphone-footer {
+  height: 50px;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+
+  background-color: #eee;
+  border-top: 1px solid #ccc;
+}
+
+.map {
+  margin: 0 -10px;
+  height: 260px;
+  background-image: url('/cheat_map.png');
+  background-size: cover;
+  background-position: 0px -10px;
+  position: relative;
+}
+
+.map-heading {
+  font-size: 20px;
+  margin: 0 10px;
+  padding: 0;
+  color: #fff;
+  text-shadow: 1px 1px 4px #000;
+  font-weight: 200;
+  position: absolute;
+  bottom: 5px;
+  line-height: 22px;
+}
+
+.next-buses-heading {
+  font-size: 18px;
+}
+
+.bus-table {
+  display: table;
+  width: 100%;
+}
+
+.bus-row {
+  height: 60px;
+  display: table-row;
+}
+
+.bus-time {
+  vertical-align: middle;
+  display: table-cell;
+  text-align: right;
+}
+
+.icon {
+  display: table-cell;
+  width: 60px;
+  vertical-align: middle;
+  padding-left: 15px;
+}
+
+.bus-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  vertical-align: middle;
+  display: table-cell;
+  text-align: center;
+}
+
+
+.bus-content {
+  display: table-cell;
+  vertical-align: middle;
+  line-height: 16px;
+}
+
+.bus-content .name {
+  font-weight: bold;
+  display: block;
+}
+
+.bus-content .meta {
+  font-weight: 200;
+  font-size: 12px;
+}

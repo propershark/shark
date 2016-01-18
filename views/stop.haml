@@ -1,0 +1,33 @@
+!!!
+%html
+  %head
+    %link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css")
+    %link(rel="stylesheet" href="/style.css")
+
+    %script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js")
+    %script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js")
+
+  %body
+    .container
+      .iphone-header
+
+      .content
+        .map
+          %h1.map-heading
+            = @stop.name
+
+        %h2.next-buses-heading Next Buses
+        .bus-table
+          - @stop.vehicles.includes(:route).order(:arriving_at).each do |v|
+            .bus-row
+              .bus-time
+                %span.time= "#{(v.arriving_at-Time.now).to_i / 60} min"
+
+              .icon
+                %span.bus-icon{ style: "background-color: ##{v.route.color};" }= v.route.short_name
+
+              .bus-content
+                %span.name= "#{v.route.long_name}"
+                %span.meta= "#{v.name} (#{v.code})"
+
+      .iphone-footer

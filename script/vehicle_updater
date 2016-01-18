@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+$LOAD_PATH.unshift(File.join(__dir__, '..', 'lib'))
+require './server.rb'
+
+second_count = 0
+while true
+  second_count += 1
+
+  # Update vehicle information from DoubleMap every 5 seconds
+  if second_count % 10 == 0
+    Vehicle.update_sourced_attributes :doublemap
+  end
+
+  sleep 1
+end

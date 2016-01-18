@@ -1,0 +1,32 @@
+!!!
+%html
+  %head
+    %link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css")
+    %link(rel="stylesheet" href="/style.css")
+
+    %script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js")
+    %script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js")
+
+  %body
+    .container
+      .row
+        .col-md-6
+          .page-header
+            %h1{ style: "color: ##{@route.color}" }
+              = @route.short_name
+              \-
+              = @route.long_name
+              %small
+                = @route.vehicles.count
+                buses running
+
+          - @route.stops.each do |s|
+            .card{ style: "border-left: 5px solid ##{@route.color}" }
+              %h2
+                = s.name
+                %small= s.code
+              %ol.bus-list
+                - s.vehicles.order(:arriving_at).each do |v|
+                  %li
+                    = 'Leaving at ' + v.arriving_at.getlocal.strftime('%I:%M %p') + ','
+                    = v.saturation.to_s + '% full'
