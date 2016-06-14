@@ -1,27 +1,27 @@
 module Shark
   class Vehicle < Object
     # The identifying code for this vehicle
-    attr_accessor :code
+    attribute :code
     # The (often) humanized name for this vehicle
-    attr_accessor :name
+    attribute :name
     # The latitudinal position of this vehicle
-    attr_accessor :latitude
+    attribute :latitude
     # The longitudinal position of this vehicle
-    attr_accessor :longitude
+    attribute :longitude
     # The number of passengers that this vehicle can carry at any given time
-    attr_accessor :capacity
+    attribute :capacity
     # The number of passengers currently aboard this vehicle
-    attr_accessor :passengers
+    attribute :passengers
     # The last stop that this vehicle departed from
-    attr_accessor :last_stop
+    attribute :last_stop
     # The next stop that this vehicle will arrive at
-    attr_accessor :next_stop
+    attribute :next_stop
     # The route that this vehicle is currently traveling on
-    attr_accessor :route
+    attribute :route
     # The amount of time by which this vehicle currently differs from the
     # schedule it is following (determined by `route`)
-    attr_accessor :schedule_delta
+    attribute :schedule_delta
     # The directional heading of this vehicle
-    attr_accessor :heading
+    attribute :heading
   end
 end

@@ -95,7 +95,7 @@ module Shark
     protected
       # Retrieve the key to be used for indexing objects from the given object.
       def pk_for object
-        object[@key]
+        object.send(@key)
       end
   end
 end
