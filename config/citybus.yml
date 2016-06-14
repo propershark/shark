@@ -1,0 +1,43 @@
+# The name of the agency this configuration supports
+citybus:
+  # The namespace prefix used for websocket channel names
+  namespace: com.propershark.citybus
+  # How often updates for this agency will be published
+  update_frequency: 2s
+  # The ObjectManager for maintaining vehicle information
+  vehicle_manager:
+    # Appended to the agency namespace, the namespace prefix used for vehicle
+    # channel names
+    namespace: vehicles
+    # The list of sources that this manager will poll every update
+    sources:
+      # A source object to be instantiated. The key is the fully-qualified name
+      # of the source class to be instantiated, the value is a hash of
+      # arguments to pass to the initializer as keyword arguments.
+      DoubleMap::VehicleSource:
+        agency:   citybus
+        endpoint: buses
+        key:      id
+
+  # The ObjectManager for maintaining station information
+  station_manager:
+    namespace: stations
+    # Individual managers can have their own update frequencies
+    update_frequency: 1d
+    sources:
+      DoubleMap::StationSource:
+        agency:   citybus
+        endpoint: stops
+        key:      id
+
+  # The ObjectManager for maintaining route information
+  route_manager:
+    namespace: routes
+    sources:
+      DoubleMap::RouteSource:
+        agency:   citybus
+        endpoint: routes
+        key:      id
+        # Even individual sources can have their own update frequencies
+        update_frequency: 1d
+
