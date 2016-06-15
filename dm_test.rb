@@ -4,11 +4,13 @@ require 'rufus-scheduler'
 require './object.rb'
 require './objects/vehicle.rb'
 require './objects/route.rb'
+require './objects/station.rb'
 require './object_manager.rb'
 
 require './sources/doublemap.rb'
 require './sources/doublemap/vehicle.rb'
 require './sources/doublemap/route.rb'
+require './sources/doublemap/station.rb'
 
 $scheduler = Rufus::Scheduler.new
 
@@ -30,16 +32,19 @@ $vehicle_manager.add_source(DoubleMap::VehicleSource.new('citybus', 'buses', 'id
 $route_manager = Shark::ObjectManager.new :code
 $route_manager.add_source(DoubleMap::RouteSource.new('citybus', 'routes', 'id'))
 
-# $scheduler.every '4s' do
-#   $vehicle_manager.update
+$station_manager = Shark::ObjectManager.new :code
+$station_manager.add_source(DoubleMap::StationSource.new('citybus', 'stops', 'id'))
 
-#   $vehicle_manager.each do |vehicle|
-#     channel_name = "com.propershark.vehicles.#{vehicle.code}"
-#     puts "Publishing update to channel #{channel_name}"
-#     puts vehicle.to_h
-#     @session.publish("com.propershark.vehicles.all", [vehicle.to_h])
-#   end
-# end
+$scheduler.every '2s' do
+  $vehicle_manager.update
+
+  $vehicle_manager.each do |vehicle|
+    channel_name = "com.propershark.vehicles.#{vehicle.code}"
+    puts "Publishing update to channel #{channel_name}"
+    puts vehicle.to_h
+    @session.publish("com.propershark.vehicles.all", [vehicle.to_h])
+  end
+end
 
 $scheduler.every '4s' do
   $route_manager.update
@@ -47,8 +52,17 @@ $scheduler.every '4s' do
   $route_manager.each do |route|
     channel_name = "com.propershark.routes.#{route.short_name}"
     puts "Publishing update to channel #{channel_name}"
-    puts "#{route.path}"
     @session.publish("com.propershark.routes.all", [route.to_h])
+  end
+end
+
+$scheduler.every '10s' do
+  $station_manager.update
+
+  $station_manager.each do |station|
+    channel_name = "com.propershark.stations.#{station.short_name}"
+    puts "Publishing update to channel #{channel_name}"
+    @session.publish("com.propershark.stations.all", [station.to_h])
   end
 end
 
