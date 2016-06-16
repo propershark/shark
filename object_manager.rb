@@ -16,13 +16,18 @@ module Shark
     # The attribute of the objects used to index the object hashes. Must be an
     # an accessible attribute (the object responds to `send(<attribute>)`).
     attr_accessor :key
+    # The event handling mechanism used to publish events about objects
+    # currently active on this manager. At a minimum, it must implement
+    # `on_<event>(*args)` for each event that it wishes to handle.
+    attr_accessor :event_handler
 
     # Instantiate a new ObjectManager
-    def initialize primary_key
+    def initialize key:, event_handler:, sources: []
       @known_objects  = {}
       @active_objects = {}
-      @sources        = []
-      @key            = primary_key
+      @sources        = sources
+      @key            = key
+      @event_handler  = event_handler
     end
 
     # Add a new Source object to the list of sources.
@@ -84,10 +89,28 @@ module Shark
     # Update the state of this manager by deactivating all objects, and polling
     # all sources to determine the new set of active objects.
     def update
+      # Remember which objects were previously active
+      previously_active = @active_objects.clone
+      # Deactivate all objects to avoid keeping stale objects active
       deactivate_all
+      # Poll all of the sources (in order) to update all objects and determine
+      # the active set
       @sources.each do |source|
         source.refresh
         source.update self
+      end
+      # If any new objects were activated in this session, publish an
+      # `activate` event
+      (@active_objects.keys - previously_active.keys).each do |key|
+        fire(:activate, @active_objects[key])
+      end
+      # Do the same for any objects that are no longer active
+      (previously_active.keys - @active_objects.keys).each do |key|
+        fire(:deactivate, previously_active[key])
+      end
+      # Publish update events for each currently active object
+      @active_objects.each do |key, object|
+        fire(:update, object)
       end
     end
 
@@ -96,6 +119,11 @@ module Shark
       # Retrieve the key to be used for indexing objects from the given object.
       def pk_for object
         object.send(@key)
+      end
+
+      # Pass an event to this manager's event handler.
+      def fire event, *args
+        @event_handler.send("on_#{event}", *args)
       end
   end
 end
