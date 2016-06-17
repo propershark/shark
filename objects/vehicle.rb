@@ -23,5 +23,8 @@ module Shark
     attribute :schedule_delta
     # The directional heading of this vehicle
     attribute :heading
+
+    # Vehicles should be uniquely indentifiable by their code.
+    primary_attribute :code
   end
 end

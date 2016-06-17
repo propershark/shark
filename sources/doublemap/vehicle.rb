@@ -3,7 +3,7 @@ module DoubleMap
     # A key-value map of attributes on the Vehicle class to entries in the
     # source data
     ATTRIBUTE_MAP = {
-      code: 'id',
+      code: 'name',
       name: 'name',
       latitude: 'lat',
       longitude: 'lon',

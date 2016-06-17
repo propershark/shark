@@ -27,7 +27,6 @@ $scheduler = Rufus::Scheduler.new
 
 # Initialize the object managers
 $vehicle_manager = Shark::ObjectManager.new(
-  key: :code,
   event_handler: Shark::WebSocketEventHandler.new(
     namespace: 'com.propershark.vehicles',
     transport: $transport.session
@@ -38,7 +37,6 @@ $vehicle_manager = Shark::ObjectManager.new(
 )
 
 $route_manager = Shark::ObjectManager.new(
-  key: :code,
   event_handler: Shark::WebSocketEventHandler.new(
     namespace: 'com.propershark.routes',
     transport: $transport.session
@@ -49,7 +47,6 @@ $route_manager = Shark::ObjectManager.new(
 )
 
 $station_manager = Shark::ObjectManager.new(
-  key: :code,
   event_handler: Shark::WebSocketEventHandler.new(
     namespace: 'com.propershark.stations',
     transport: $transport.session

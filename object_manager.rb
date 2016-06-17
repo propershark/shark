@@ -13,20 +13,16 @@ module Shark
     # An array of Source objects that will be used to update the attributes of
     # each active object.
     attr_accessor :sources
-    # The attribute of the objects used to index the object hashes. Must be an
-    # an accessible attribute (the object responds to `send(<attribute>)`).
-    attr_accessor :key
     # The event handling mechanism used to publish events about objects
     # currently active on this manager. At a minimum, it must implement
     # `on_<event>(*args)` for each event that it wishes to handle.
     attr_accessor :event_handler
 
     # Instantiate a new ObjectManager
-    def initialize key:, event_handler:, sources: []
+    def initialize event_handler:, sources: []
       @known_objects  = {}
       @active_objects = {}
       @sources        = sources
-      @key            = key
       @event_handler  = event_handler
     end
 
@@ -118,7 +114,7 @@ module Shark
     protected
       # Retrieve the key to be used for indexing objects from the given object.
       def pk_for object
-        object.send(@key)
+        object.identifier
       end
 
       # Pass an event to this manager's event handler.

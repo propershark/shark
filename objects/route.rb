@@ -14,5 +14,10 @@ module Shark
     attribute :path
     # The ordered list of stops that this route touches
     attribute :stops
+
+    # While routes can be uniquely identified by their code, the code is not
+    # platform agnostic and may vary across different information providers.
+    # Thus, the short_name of the route is used as the primary attribute.
+    primary_attribute :short_name
   end
 end

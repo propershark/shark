@@ -12,5 +12,10 @@ module Shark
     attribute :latitude
     # The longitudinal position of this station
     attribute :longitude
+
+    # While stations can be uniquely identified by their code, the code is not
+    # platform agnostic and may vary across different information providers.
+    # Thus, the short_name of the route is used as the primary attribute.
+    primary_attribute :short_name
   end
 end

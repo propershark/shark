@@ -8,19 +8,32 @@ module Shark
       @transport = transport
     end
 
+
     def on_activate object
-      puts "Publishing :activate event for #{object.class}##{object.code}"
-      @transport.publish("#{namespace}.activate", [object])
+      publish(:activate, object)
     end
 
     def on_deactivate object
-      puts "Publishing :deactivate event for #{object.class}##{object.code}"
-      @transport.publish("#{namespace}.deactivate", [object])
+      publish(:deactivate, object)
     end
 
     def on_update object
-      puts "Publishing :update event for #{object.class}##{object.code}"
-      @transport.publish("#{namespace}.update", [object])
+      publish(:update, object)
     end
+
+
+    # Publish an event of the given type across the transport, with the given
+    # object as a parameter.
+    def publish event, object
+      puts "Publishing an :#{event} event for #{object.class}##{object.identifier} to #{channel_name_for(object)}"
+      @transport.publish(channel_name_for(object), [event, object.to_h])
+    end
+
+    private
+      # Determine the name of the WAMP channel to which events about the given
+      # object should be published.
+      def channel_name_for object
+        "#{namespace}.#{object.identifier}"
+      end
   end
 end
