@@ -29,7 +29,7 @@ $scheduler = Rufus::Scheduler.new
 $vehicle_manager = Shark::ObjectManager.new(
   event_handler: Shark::WebSocketEventHandler.new(
     namespace: 'com.propershark.vehicles',
-    transport: $transport.session
+    transport: $transport
   ),
   sources: [
     DoubleMap::VehicleSource.new('citybus', 'buses', 'id')
@@ -39,7 +39,7 @@ $vehicle_manager = Shark::ObjectManager.new(
 $route_manager = Shark::ObjectManager.new(
   event_handler: Shark::WebSocketEventHandler.new(
     namespace: 'com.propershark.routes',
-    transport: $transport.session
+    transport: $transport
   ),
   sources: [
     DoubleMap::RouteSource.new('citybus', 'routes', 'id')
@@ -49,7 +49,7 @@ $route_manager = Shark::ObjectManager.new(
 $station_manager = Shark::ObjectManager.new(
   event_handler: Shark::WebSocketEventHandler.new(
     namespace: 'com.propershark.stations',
-    transport: $transport.session
+    transport: $transport
   ),
   sources: [
     DoubleMap::StationSource.new('citybus', 'stops', 'id')

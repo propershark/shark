@@ -36,5 +36,11 @@ module Shark
     def is_open?
       @wamp_client.is_open?
     end
+
+    # A direct wrapper around `session.publish` to avoid needing to update
+    # references to `session` (it will be changed whenever a new session opens)
+    def publish channel, args=[], kwargs={}
+      @session.publish(channel, args, kwargs)
+    end
   end
 end
