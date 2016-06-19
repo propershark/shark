@@ -6,6 +6,8 @@ module Shark
     attr_accessor :wamp_client
     # The Session object used to publish/subscribe events
     attr_accessor :session
+    # The thread that wamp_client will be running in
+    attr_accessor :thread
 
     # Parameters used to initialize the WAMP client
     # TODO: Include this in the service config.
@@ -23,11 +25,9 @@ module Shark
       @wamp_client.on_join{ |session, _| @session = session }
     end
 
-    # Initiate the transport connection. Note that `#open` is a blocking
-    # method, meaning that this method will not return until the connection has
-    # been closed. It is recommended to run this method from a separate Thread.
+    # Initiate the transport connection in a background thread.
     def open
-      @wamp_client.open
+      @thread = Thread.new{ @wamp_client.open }
     end
 
     # Return true if the transport is currently connected. Useful for allowing
