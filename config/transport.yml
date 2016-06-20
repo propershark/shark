@@ -1,0 +1,14 @@
+# The configuration used to initialize the WampClient inside of Transport
+wamp:
+  # The URI of the router that the WampClient should connect to
+  uri: ws://io:8080/ws
+  # The realm that the WampClient will participate in
+  realm: realm1
+  # The username used when publishing events. This user should have publish
+  # permissions on all channels, but does not require subscribe permissions.
+  authid: tester2
+  # The authorization methods used when connecting to the router. This should
+  # be an array of values
+  authmethods:
+    # "anonymous" is the default method that does not check for any permissions
+    - anonymous

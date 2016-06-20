@@ -1,7 +1,11 @@
+require 'yaml'
+
 require 'wamp_client'
 
 module Shark
   class Transport
+    # A Hash of configuration data used to define this Agency.
+    attr_accessor :config
     # The WampClient object that manages the transport session
     attr_accessor :wamp_client
     # The Session object used to publish/subscribe events
@@ -9,19 +13,14 @@ module Shark
     # The thread that wamp_client will be running in
     attr_accessor :thread
 
-    # Parameters used to initialize the WAMP client
-    # TODO: Include this in the service config.
-    WAMP_PARAMS = {
-      uri: 'ws://io:8080/ws',
-      realm: 'realm1',
-      authid: 'tester2',
-      authmethods: ['anonymous']
-    }
-
-    def initialize
+    def initialize config: nil, config_file:
+      @config = config || YAML.load_file(config_file)
       # Create a new WampClient object and add a hook to keep the session
       # object up to date in case of network errors.
-      @wamp_client = WampClient::Connection.new(WAMP_PARAMS)
+      wamp_config = @config['wamp'].each_with_object({}) do |(key, val), hash|
+        hash[key.to_sym] = val
+      end
+      @wamp_client = WampClient::Connection.new(wamp_config)
       @wamp_client.on_join{ |session, _| @session = session }
     end
 

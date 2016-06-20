@@ -1,3 +1,5 @@
+require 'yaml'
+
 require 'rufus-scheduler'
 
 require './object.rb'
@@ -5,12 +7,10 @@ require './objects/vehicle.rb'
 require './objects/route.rb'
 require './objects/station.rb'
 require './object_manager.rb'
-
 require './sources/doublemap.rb'
 require './sources/doublemap/vehicle.rb'
 require './sources/doublemap/route.rb'
 require './sources/doublemap/station.rb'
-
 require './transport.rb'
 
 
@@ -28,8 +28,8 @@ module Shark
     # this Agency
     attr_accessor :managers
 
-    def initialize config: {}
-      @config = config
+    def initialize config: nil, config_file:
+      @config = config || YAML.load_file(config_file)
       @scheduler = Rufus::Scheduler.new
       @managers = {}
       create_transport
@@ -44,7 +44,7 @@ module Shark
 
     # Initialize the Transport layer and run it in a background thread.
     def create_transport
-      @transport = Transport.new
+      @transport = Transport.new config_file: @config['transport']
       @transport.open
       sleep(0.01) until @transport.is_open?
     end
