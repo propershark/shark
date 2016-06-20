@@ -10,20 +10,33 @@ module Shark
     # Objects not in this hash but in `known_objects` will not participate in
     # these activities.
     attr_accessor :active_objects
+    # The frequency at which this manager should perform update cycles. That
+    # is, how often the sources will be polled and events will be published.
+    # Note that the owner of the manager is responsible for scheduling; this
+    # attribute is simply here to match how frequencies are defined in the
+    # configuration.
+    attr_accessor :update_frequency
+    # The transport mechanisms used to publish events about objects currently
+    # active on this manager. At a minimum, it must implement
+    # `on_<event>(*args)` for each event that it wishes to handle.
+    attr_accessor :transports
+    # The namespace prefix used to isolate events that this manager publishes.
+    # Will be concatenated with object identifiers to form a unique, fully-
+    # qualified channel name.
+    attr_accessor :namespace
     # An array of Source objects that will be used to update the attributes of
     # each active object.
     attr_accessor :sources
-    # The event handling mechanism used to publish events about objects
-    # currently active on this manager. At a minimum, it must implement
-    # `on_<event>(*args)` for each event that it wishes to handle.
-    attr_accessor :event_handler
+
 
     # Instantiate a new ObjectManager
-    def initialize event_handler:, sources: []
-      @known_objects  = {}
-      @active_objects = {}
-      @sources        = sources
-      @event_handler  = event_handler
+    def initialize update_frequency: '5s', transports: [], namespace: '', sources: []
+      @known_objects    = {}
+      @active_objects   = {}
+      @update_frequency = update_frequency
+      @transports       = transports
+      @namespace        = namespace
+      @sources          = sources
     end
 
     # Add a new Source object to the list of sources.
@@ -117,9 +130,18 @@ module Shark
         object.identifier
       end
 
-      # Pass an event to this manager's event handler.
-      def fire event, *args
-        @event_handler.send("on_#{event}", *args)
+      # Determine the fully-qualified name of the channel to which events about
+      # the given object should be published.
+      def channel_name_for object
+        "#{@namespace}.#{object.identifier}"
+      end
+
+      # Pass an event to all of the transports defined for this manager, with
+      # the object that the event is for passed as a parameter.
+      def fire event, object
+        @transports.each do |transport|
+          transport.publish(channel_name_for(object), object)
+        end
       end
   end
 end

@@ -17,7 +17,7 @@ module DoubleMap
     # The base url for the doublemap API.
     API_BASE = "doublemap.com/map/v2"
 
-    def initialize agency, endpoint, key
+    def initialize agency:, endpoint:, key:
       @agency   = agency
       @endpoint = endpoint
       @key      = key

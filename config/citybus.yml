@@ -1,11 +1,11 @@
-# The name of the agency this configuration supports
-citybus:
-  # The namespace prefix used for websocket channel names
-  namespace: com.propershark.citybus
-  # How often updates for this agency will be published
-  update_frequency: 2s
+# The namespace prefix used for websocket channel names
+namespace: com.propershark.citybus
+# All of the managers needed to cover the services provided by this agency
+managers:
   # The ObjectManager for maintaining vehicle information
   vehicle_manager:
+    # How often updates for this agency will be published
+    update_frequency: 2s
     # Appended to the agency namespace, the namespace prefix used for vehicle
     # channel names
     namespace: vehicles
@@ -21,9 +21,8 @@ citybus:
 
   # The ObjectManager for maintaining station information
   station_manager:
-    namespace: stations
-    # Individual managers can have their own update frequencies
     update_frequency: 1d
+    namespace: stations
     sources:
       DoubleMap::StationSource:
         agency:   citybus
@@ -32,12 +31,11 @@ citybus:
 
   # The ObjectManager for maintaining route information
   route_manager:
+    update_frequency: 1d
     namespace: routes
     sources:
       DoubleMap::RouteSource:
         agency:   citybus
         endpoint: routes
         key:      id
-        # Even individual sources can have their own update frequencies
-        update_frequency: 1d
 
