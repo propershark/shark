@@ -17,10 +17,7 @@ module Shark
       @config = config || YAML.load_file(config_file)
       # Create a new WampClient object and add a hook to keep the session
       # object up to date in case of network errors.
-      wamp_config = @config['wamp'].each_with_object({}) do |(key, val), hash|
-        hash[key.to_sym] = val
-      end
-      @wamp_client = WampClient::Connection.new(wamp_config)
+      @wamp_client = WampClient::Connection.new(@config['wamp'].symbolize_keys)
       @wamp_client.on_join{ |session, _| @session = session }
     end
 
@@ -39,6 +36,7 @@ module Shark
     # A direct wrapper around `session.publish` to avoid needing to update
     # references to `session` (it will be changed whenever a new session opens)
     def publish channel, *args
+      puts "Working"
       @session.publish(channel, args)
     end
   end

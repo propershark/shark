@@ -1,3 +1,4 @@
+require './core_ext/hash.rb'
 require './agency.rb'
 
 # Initialize the CityBus agency from it's configuration file.
