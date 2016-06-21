@@ -32,3 +32,7 @@ module DoubleMap
     end
   end
 end
+
+require_relative 'doublemap/route'
+require_relative 'doublemap/station'
+require_relative 'doublemap/vehicle'

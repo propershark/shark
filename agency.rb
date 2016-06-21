@@ -2,16 +2,13 @@ require 'yaml'
 
 require 'rufus-scheduler'
 
-require './object.rb'
-require './objects/vehicle.rb'
-require './objects/route.rb'
-require './objects/station.rb'
-require './object_manager.rb'
-require './sources/doublemap.rb'
-require './sources/doublemap/vehicle.rb'
-require './sources/doublemap/route.rb'
-require './sources/doublemap/station.rb'
-require './transport.rb'
+require_relative 'object'
+require_relative 'objects/vehicle'
+require_relative 'objects/route'
+require_relative 'objects/station'
+require_relative 'object_manager'
+require_relative 'sources/doublemap'
+require_relative 'transport'
 
 
 module Shark
