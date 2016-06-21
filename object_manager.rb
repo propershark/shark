@@ -140,7 +140,7 @@ module Shark
       # the object that the event is for passed as a parameter.
       def fire event, object
         @transports.each do |transport|
-          transport.publish(channel_name_for(object), object)
+          transport.publish(channel_name_for(object), object.to_h)
         end
       end
   end
