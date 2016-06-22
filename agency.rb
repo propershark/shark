@@ -7,6 +7,7 @@ require_relative 'objects/vehicle'
 require_relative 'objects/route'
 require_relative 'objects/station'
 require_relative 'object_manager'
+require_relative 'sources/citybus'
 require_relative 'sources/doublemap'
 require_relative 'transport'
 
@@ -74,6 +75,12 @@ module Shark
     # defined by their update_frequency.
     def schedule_managers
       @managers.each do |name, manager|
+        # Perform one update immediately so that all information is initialized
+        # before the first scheduled update cycle occurs. This avoids issues
+        # where updates for routes (usually daily) may not have occurred before
+        # updates for vehicles (usually every few seconds) need their
+        # information.
+        manager.update
         @scheduler.every(manager.update_frequency){ manager.update }
       end
     end
