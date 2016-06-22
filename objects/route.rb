@@ -12,8 +12,8 @@ module Shark
     attribute :color
     # The geo-spatial path that this route takes, stored as [lat, lon] pairs
     attribute :path
-    # The ordered list of stops that this route touches
-    attribute :stops
+    # The ordered list of stations that this route touches
+    attribute :stations
 
     # While routes can be uniquely identified by their code, the code is not
     # platform agnostic and may vary across different information providers.

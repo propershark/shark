@@ -9,7 +9,7 @@ module DoubleMap
       description: 'description',
       color: 'color',
       path: 'path',
-      stops: 'stops'
+      stations: 'stops'
     }
 
     # Update the local cache of data to prepare for an `update` cycle
