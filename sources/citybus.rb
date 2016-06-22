@@ -40,9 +40,7 @@ module CityBus
     # the parsed body of the response.
     def post params={}
       url = "#{API_BASE}/#{@endpoint}"
-      puts url
       res = HTTParty.post(url, body: params)
-      puts JSON.parse(res.body)
       JSON.parse(res.body)
     end
   end

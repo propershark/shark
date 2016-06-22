@@ -5,38 +5,14 @@ namespace: com.propershark.citybus
 transport: config/transport.yml
 # All of the managers needed to cover the services provided by this agency
 managers:
-  # The ObjectManager for maintaining vehicle information
-  vehicle_manager:
-    # How often updates for this agency will be published
-    update_frequency: 2s
-    # Appended to the agency namespace, the namespace prefix used for vehicle
-    # channel names
-    namespace: vehicles
-    # The list of sources that this manager will poll every update
-    sources:
-      # A source object to be instantiated. The key is the fully-qualified name
-      # of the source class to be instantiated, the value is a hash of
-      # arguments to pass to the initializer as keyword arguments.
-      DoubleMap::VehicleSource:
-        agency:   citybus
-        endpoint: buses
-        key:      id
-
-  # The ObjectManager for maintaining station information
-  station_manager:
-    update_frequency: 1d
-    namespace: stations
-    sources:
-      DoubleMap::StationSource:
-        agency:   citybus
-        endpoint: stops
-        key:      id
-
   # The ObjectManager for maintaining route information
   route_manager:
     update_frequency: 1d
     namespace: routes
     sources:
+      # A source object to be instantiated. The key is the fully-qualified name
+      # of the source class to be instantiated, the value is a hash of
+      # arguments to pass to the initializer as keyword arguments.
       DoubleMap::RouteSource:
         agency:   citybus
         endpoint: routes
@@ -49,3 +25,29 @@ managers:
         endpoint: GetRoutes/
         key:      Key
 
+  # The ObjectManager for maintaining vehicle information
+  vehicle_manager:
+    # How often updates for this agency will be published
+    update_frequency: 2s
+    # Appended to the agency namespace, the namespace prefix used for vehicle
+    # channel names
+    namespace: vehicles
+    # The list of sources that this manager will poll every update
+    sources:
+      DoubleMap::VehicleSource:
+        agency:   citybus
+        endpoint: buses
+        key:      id
+      CityBus::VehicleSource:
+        endpoint: GetVehicles
+        key:      :name
+
+  # The ObjectManager for maintaining station information
+  station_manager:
+    update_frequency: 1d
+    namespace: stations
+    sources:
+      DoubleMap::StationSource:
+        agency:   citybus
+        endpoint: stops
+        key:      id

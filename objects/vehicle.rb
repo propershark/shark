@@ -12,6 +12,8 @@ module Shark
     attribute :capacity
     # The number of passengers currently aboard this vehicle
     attribute :passengers
+    # The fullness of the vehicle expressed as a percentage
+    attribute :saturation
     # The last stop that this vehicle departed from
     attribute :last_stop
     # The next stop that this vehicle will arrive at
@@ -23,6 +25,9 @@ module Shark
     attribute :schedule_delta
     # The directional heading of this vehicle
     attribute :heading
+    # The speed that the vehicle is currently travelling at
+    # TODO: determine unit of speed (mph, mps, kph, etc)
+    attribute :speed
 
     # Vehicles should be uniquely indentifiable by their code.
     primary_attribute :code
