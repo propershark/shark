@@ -41,4 +41,11 @@ managers:
         agency:   citybus
         endpoint: routes
         key:      id
+      # CityBus doesn't provide any usable information (at least not any
+      # better than DoubleMap), but it needs to be polled to ensure that
+      # CityBus::VehicleSource (which provides saturation information, among
+      # other things) is able to make valid polls.
+      CityBus::RouteSource:
+        endpoint: GetRoutes/
+        key:      Key
 
