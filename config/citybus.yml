@@ -51,3 +51,6 @@ managers:
         agency:   citybus
         endpoint: stops
         key:      id
+      CityBus::StationSource:
+        endpoint: GetPatternPoints
+        key:      :name

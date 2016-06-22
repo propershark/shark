@@ -1,6 +1,6 @@
 module CityBus
   class VehicleSource < Source
-    # A key-value map of attributes on the Route class to entries in the
+    # A key-value map of attributes on the Vehicle class to entries in the
     # source data
     ATTRIBUTE_MAP = {
       name: 'Name',
