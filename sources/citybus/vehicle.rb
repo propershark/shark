@@ -22,6 +22,7 @@ module CityBus
       end.join('&')
       # Execute a request for all vehicles travelling the known routes.
       raw_data = self.post(formatted_params)
+
       @data = raw_data.each_with_object({}) do |rd_entry, data|
         # Vehicle entries are keyed as arrays of vehicles under patterns.
         rd_entry['VehiclesByPattern'].each do |vehicles_for_pattern|
@@ -31,8 +32,9 @@ module CityBus
             end
             # The heading and speed of the vehicle are hidden in the GPS field,
             # so they must be extracted manually.
-            mapped_info[:speed] = vehicle['GPS']['Spd']
-            mapped_info[:heading] = vehicle['GPS']['Dir']
+            mapped_info[:speed]     = vehicle['GPS']['Spd']
+            mapped_info[:heading]   = vehicle['GPS']['Dir']
+            mapped_info[:next_stop] = vehicle['NextStop']['StopCode'] rescue nil
             # After all attributes have been mapped, the vehicle can be added
             # to the data hash
             data[mapped_info[@key]] = mapped_info
@@ -51,6 +53,7 @@ module CityBus
         # Update the information on the Vehicle object to match the current
         # data from the source
         vehicle.assign(info)
+        puts vehicle.to_h
         # Ensure that the vehicle is active in the manager
         manager.activate(vehicle)
       end
