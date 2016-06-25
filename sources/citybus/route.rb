@@ -2,41 +2,35 @@ require 'set'
 
 module CityBus
   class RouteSource < Source
-    class << self
-      # The list of Route-Direction pairs that can be used to retrieve vehicle
-      # information. CityBus, interestingly, does not provide a way to retrieve
-      # all vehicles without knowing all of the Routes and Directions to which
-      # they belong.
-      attr_accessor :route_direction_pairs
-    end
-
-    # A key-value map of attributes on the Route class to entries in the
-    # source data
-    ATTRIBUTE_MAP = {
-      name: 'Name',
-      short_name: 'ShortName',
-      description: 'Description',
-      color: 'Color',
-      patterns: 'PatternList'
-    }
+    ATTRIBUTES = [
+      'name',
+      'short_name',
+      'description'
+    ]
 
     # Update the local cache of data to prepare for an `update` cycle
     def refresh
-      rd_pairs = Set.new
-      @data = self.post
-      @data.each do |route|
-        route['PatternList'].each do |pattern|
-          rd_pairs << [route['Key'], pattern['Direction']['DirectionKey']]
-        end
-      end
-      self.class.route_direction_pairs = rd_pairs
+      # For each route, create a hash of the values of each attribute and add
+      # that hash to the data hash, indexed by the primary key specified in
+      # the configuration of this Source.
+      @data = tripspark.routes.all.map do |route|
+        [route.send(@key), ATTRIBUTES.map{ |name| [name, route.send(name)] }.to_h]
+      end.to_h
     end
 
     # Iterate through the local cache of data, activating and updating objects
     # on the given manager as they come up
     def update manager
-      # TODO: determine importance of implementing update, since no attributes
-      # are actively being used from this source.
+      @data.each do |key, info|
+        # If the route already exists in the manager, load it. Otherwise,
+        # create a new one.
+        route = manager.get(key) || ::Shark::Route.new
+        # Update the information on the Route object to match the current
+        # data from the source
+        route.assign(info)
+        # Ensure that the route is active in the manager
+        manager.activate(route)
+      end
     end
   end
 end

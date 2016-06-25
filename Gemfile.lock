@@ -6,8 +6,12 @@ GEM
       json (~> 1.8)
       multi_xml (>= 0.5.2)
     json (1.8.3)
+    memoist (0.14.0)
     multi_xml (0.5.5)
     rufus-scheduler (3.2.1)
+    tripspark_api (0.1.0)
+      httparty (~> 0.13)
+      memoist (~> 0.14)
     wamp_client (0.0.2)
       json (~> 1.8.3)
       websocket-eventmachine-client (~> 1.1.0)
@@ -26,6 +30,7 @@ PLATFORMS
 DEPENDENCIES
   httparty
   rufus-scheduler
+  tripspark_api
   wamp_client
 
 BUNDLED WITH

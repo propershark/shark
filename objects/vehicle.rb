@@ -10,8 +10,8 @@ module Shark
     attribute :longitude
     # The number of passengers that this vehicle can carry at any given time
     attribute :capacity
-    # The number of passengers currently aboard this vehicle
-    attribute :passengers
+    # The number of passengers currently onboard this vehicle
+    attribute :onboard
     # The fullness of the vehicle expressed as a percentage
     attribute :saturation
     # The last stop that this vehicle departed from
