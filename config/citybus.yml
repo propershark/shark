@@ -32,7 +32,7 @@ managers:
       DoubleMap::VehicleSource:
         agency:   citybus
         endpoint: buses
-        key:      id
+        key:      name
       CityBus::VehicleSource:
         key:      name
 
@@ -44,6 +44,6 @@ managers:
       DoubleMap::StationSource:
         agency:   citybus
         endpoint: stops
-        key:      id
+        key:      short_name
       CityBus::StationSource:
-        key:      name
+        key:      stop_code
