@@ -1,6 +1,11 @@
 require './core_ext/hash.rb'
 require './agency.rb'
 
+require_relative 'middlewares/transport'
+
+# Set up the Middleware stack for all agencies
+Shark::Agency.use_middleware Transport, config_file: 'config/transport.yml'
+
 # Initialize the CityBus agency from it's configuration file.
 $citybus = Shark::Agency.new(config_file: 'config/citybus.yml')
 # Start running the services the agency provides.

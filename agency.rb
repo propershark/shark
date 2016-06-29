@@ -9,11 +9,22 @@ require_relative 'objects/station'
 require_relative 'object_manager'
 require_relative 'sources/citybus'
 require_relative 'sources/doublemap'
-require_relative 'transport'
+require_relative 'middleware'
 
 
 module Shark
   class Agency
+    class << self
+      # A list of Middleware classes and the arguments used to initialize them
+      attr_accessor :middlewares
+
+      # Add a Middleware class that should be attached to every new agency.
+      # Any additional arguments will be passed to the Middleware initializer.
+      def use_middleware klass, *args, **kwargs
+        (@middlewares ||= []) << [klass, args, kwargs]
+      end
+    end
+
     # A Hash of configuration data used to define this Agency.
     attr_accessor :config
     # The scheduler used to schedule events (e.g., update managers) for this
@@ -25,13 +36,15 @@ module Shark
     # The ObjectManager instances that cover all of the services provided by
     # this Agency
     attr_accessor :managers
+    # The Middleware instances that are attached to this agency
+    attr_accessor :middlewares
 
-    def initialize config: nil, config_file:
+
+    def initialize config: nil, config_file: nil
       @config = config || YAML.load_file(config_file)
       @scheduler = Rufus::Scheduler.new
-      @managers = {}
-      create_transport
       create_managers
+      create_middlewares
     end
 
     # "Start" this agency by scheduling all activities that it performs to run
@@ -42,16 +55,15 @@ module Shark
 
     # Initialize the Transport layer and run it in a background thread.
     def create_transport
-      @transport = Transport.new config_file: @config['transport']
-      @transport.open
       sleep(0.01) until @transport.is_open?
     end
 
     # Initialize all of the object managers defined by the configuration
     def create_managers
+      @managers ||= {}
       # These options will apply to each manager by default. Some of these
       # options may be overridden by the configuration.
-      general_manager_opts = { transports: [@transport] }
+      general_manager_opts = { agency: self }
       @config['managers'].each do |name, manager_config|
         # For each source defined in the config, create a new Source instance
         # based on it's value
@@ -71,6 +83,19 @@ module Shark
       end
     end
 
+    # Instantiate and attach the list of Middleware classes for this agency.
+    # This method will block until all middleware instances are fully
+    # initialized (their `ready?` method returns true).
+    def create_middlewares
+      @middlewares = self.class.middlewares.map do |(klass, args, kwargs)|
+        klass.new(self, *args, **kwargs)
+      end
+      # Some Middlewares will use background threads to process work. By
+      # sleeping for a short time between checks, those threads can work
+      # concurrently instead of each one blocking serially.
+      sleep(0.01) until @middlewares.drop_while(&:ready?).empty?
+    end
+
     # Register the managers with the scheduler to update at the interval
     # defined by their update_frequency.
     def schedule_managers
@@ -83,6 +108,11 @@ module Shark
         manager.update
         @scheduler.every(manager.update_frequency){ manager.update }
       end
+    end
+
+    # Proxy an event up the Middleware stack
+    def fire event, channel, *args
+      @middlewares.each{ |mw| mw.call(event, channel, *args) }
     end
   end
 end

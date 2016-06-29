@@ -1,8 +1,5 @@
 # The namespace prefix used for websocket channel names
 namespace: com.propershark.citybus
-# The name of a configuration file defining the Transport object this agency
-# will communicate over.
-transport: config/transport.yml
 # All of the managers needed to cover the services provided by this agency
 managers:
   # The ObjectManager for maintaining route information

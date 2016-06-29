@@ -16,10 +16,9 @@ module Shark
     # attribute is simply here to match how frequencies are defined in the
     # configuration.
     attr_accessor :update_frequency
-    # The transport mechanisms used to publish events about objects currently
-    # active on this manager. At a minimum, it must implement
-    # `on_<event>(*args)` for each event that it wishes to handle.
-    attr_accessor :transports
+    # The agency that this manager belongs to. All events that this manager
+    # creates will be pushed out to this agency.
+    attr_accessor :agency
     # The namespace prefix used to isolate events that this manager publishes.
     # Will be concatenated with object identifiers to form a unique, fully-
     # qualified channel name.
@@ -30,11 +29,11 @@ module Shark
 
 
     # Instantiate a new ObjectManager
-    def initialize update_frequency: '5s', transports: [], namespace: '', sources: []
+    def initialize update_frequency: '5s', agency:, namespace: '', sources: []
       @known_objects    = {}
       @active_objects   = {}
       @update_frequency = update_frequency
-      @transports       = transports
+      @agency           = agency
       @namespace        = namespace
       @sources          = sources
     end
@@ -138,10 +137,8 @@ module Shark
 
       # Pass an event to all of the transports defined for this manager, with
       # the object that the event is for passed as a parameter.
-      def fire event, object
-        @transports.each do |transport|
-          transport.publish(channel_name_for(object), object.to_h)
-        end
+      def fire event_type, object
+        agency.fire(event_type, channel_name_for(object), object.to_h)
       end
   end
 end
