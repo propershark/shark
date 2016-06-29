@@ -11,12 +11,14 @@ class Transport < Shark::Middleware
   # The thread that wamp_client will be running in
   attr_accessor :thread
 
-  def initialize config: nil, config_file:
-    @config = config || YAML.load_file(config_file)
+  def initialize agency, config_file:
+    super(agency)
+    @config = YAML.load_file(config_file)
     # Create a new WampClient object and add a hook to keep the session
     # object up to date in case of network errors.
     @wamp_client = WampClient::Connection.new(@config['wamp'].symbolize_keys)
     @wamp_client.on_join{ |session, _| @session = session }
+    open
   end
 
   # Initiate the transport connection in a background thread.
@@ -28,14 +30,16 @@ class Transport < Shark::Middleware
   # other components to wait until the connection is established, even when
   # it is running in another thread.
   def open?
-    @wamp_client.is_open?
+    @wamp_client.is_open? && @session
   end
   alias_method :ready?, :open?
 
-  # A direct wrapper around `session.publish` to avoid needing to update
-  # references to `session` (it will be changed whenever a new session opens)
-  def publish channel, *args
-    puts "Working"
-    @session.publish(channel, args)
+  # Publish public events over the WAMP socket, ignore any other events
+  def call event, channel, *args
+    case event
+    when :activate, :deactivate, :update
+      puts "Publishing #{event} event to #{channel}"
+      @session.publish(channel, args, event: event)
+    end
   end
 end

@@ -25,7 +25,7 @@ module Shark
     end
 
     # Handle an event, potentially including some arguments
-    def call event, *args
+    def call event, channel, *args
       raise "Middleware classes must override `call`"
     end
   end
