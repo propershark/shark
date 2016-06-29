@@ -9,7 +9,8 @@ require_relative 'objects/station'
 require_relative 'object_manager'
 require_relative 'sources/citybus'
 require_relative 'sources/doublemap'
-require_relative 'transport'
+require_relative 'middleware'
+require_relative 'middlewares/transport'
 
 
 module Shark
@@ -25,6 +26,8 @@ module Shark
     # The ObjectManager instances that cover all of the services provided by
     # this Agency
     attr_accessor :managers
+    # The Middleware classes that are attached to this agency
+    attr_accessor :middlewares
 
     def initialize config: nil, config_file:
       @config = config || YAML.load_file(config_file)
