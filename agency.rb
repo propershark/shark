@@ -111,8 +111,8 @@ module Shark
     end
 
     # Proxy an event up the Middleware stack
-    def event type, channel, *args
-      @middlewares.each{ |mw| mw.call(type, channel, *args) }
+    def fire event, channel, *args
+      @middlewares.each{ |mw| mw.call(event, channel, *args) }
     end
   end
 end
