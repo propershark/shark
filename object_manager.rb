@@ -140,7 +140,7 @@ module Shark
       # - args: a single argument, the object the event relates to.
       # - originator: who is responsible for initiating the event.
       def fire event_type, object
-        meta = { originator: [@namespace, object.identifier.to_s] }
+        meta = { originator: channel_name_for(object) }
         agency.call(event_type, channel_name_for(object), object.to_h, meta)
       end
   end
