@@ -17,6 +17,7 @@ module DoubleMap
       @data = self.get.map do |route|
         # Convert the route's path from a flat list into pairs.
         route['path'] = route['path'].each_slice(2).to_a
+        route['short_name'] = route['name'].split.first if route['short_name'].empty?
         mapped_info = ATTRIBUTE_MAP.each_with_object({}) do |(prop, name), h|
           h[prop] = route[name]
         end
