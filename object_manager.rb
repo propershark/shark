@@ -138,7 +138,7 @@ module Shark
       # Pass an event to all of the transports defined for this manager, with
       # the object that the event is for passed as a parameter.
       def fire event_type, object
-        agency.fire(event_type, channel_name_for(object), object.to_h)
+        agency.call(event_type, channel_name_for(object), object.to_h)
       end
   end
 end

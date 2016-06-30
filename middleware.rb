@@ -13,9 +13,12 @@ module Shark
   # handling, or just extending the framework.
   class Middleware
     # Create a new instance of this middleware, including a reference to the
-    # agency it is stacked on.
-    def initialize agency
-      @agency = agency
+    # app that is stacked above it.
+    def initialize app
+      # If this is the top middleware (i.e., there are no middlewares stacked
+      # above this one), `@app` will be a blank Proc since it responds to
+      # `.call` and doesn't error with the wrong number of arguments.
+      @app = app || Proc.new{}
     end
 
     # Return a truthy value when this middleware is fully initialized and ready

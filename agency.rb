@@ -87,8 +87,8 @@ module Shark
     # This method will block until all middleware instances are fully
     # initialized (their `ready?` method returns true).
     def create_middlewares
-      @middlewares = self.class.middlewares.map do |(klass, args, kwargs)|
-        klass.new(self, *args, **kwargs)
+      @middlewares = self.class.middlewares.each.with_object(nil).map do |(klass, args, kwargs), app|
+        klass.new(app, *args, **kwargs)
       end
       # Some Middlewares will use background threads to process work. By
       # sleeping for a short time between checks, those threads can work
@@ -110,9 +110,11 @@ module Shark
       end
     end
 
-    # Proxy an event up the Middleware stack
-    def fire event, channel, *args
-      @middlewares.each{ |mw| mw.call(event, channel, *args) }
+    # Proxy an event to the middleware stack. Each middleware entry is
+    # responsible for passing the event to the next entry, so simply proxying
+    # to the first entry is enough.
+    def call event, channel, *args
+      @middlewares.first.call(event, channel, *args)
     end
   end
 end

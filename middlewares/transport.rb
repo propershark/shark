@@ -2,7 +2,7 @@ require 'yaml'
 require 'wamp_client'
 
 class Transport < Shark::Middleware
-  # A Hash of configuration data used to define this Agency.
+  # A Hash of configuration data used to define this transport.
   attr_accessor :config
   # The WampClient object that manages the transport session
   attr_accessor :wamp_client
@@ -11,8 +11,8 @@ class Transport < Shark::Middleware
   # The thread that wamp_client will be running in
   attr_accessor :thread
 
-  def initialize agency, config_file:
-    super(agency)
+  def initialize app, config_file:
+    super(app)
     @config = YAML.load_file(config_file)
     # Create a new WampClient object and add a hook to keep the session
     # object up to date in case of network errors.
@@ -37,9 +37,13 @@ class Transport < Shark::Middleware
   # Publish public events over the WAMP socket, ignore any other events
   def call event, channel, *args
     case event
+    # For now, only these events matter
     when :activate, :deactivate, :update
       puts "Publishing #{event} event to #{channel}"
       @session.publish(channel, args, event: event)
     end
+
+    # This is a pass-through middleware, so proxy the event up.
+    @app.call(event, channel, *args)
   end
 end
