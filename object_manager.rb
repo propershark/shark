@@ -122,7 +122,6 @@ module Shark
       end
     end
 
-
     protected
       # Retrieve the key to be used for indexing objects from the given object.
       def pk_for object
@@ -135,10 +134,14 @@ module Shark
         "#{@namespace}.#{object.identifier}"
       end
 
-      # Pass an event to all of the transports defined for this manager, with
-      # the object that the event is for passed as a parameter.
+      # Create an event to be sent out from the agency. The event consists of:
+      # - event_type: the type of event being sent.
+      # - channel: the namespace the event should be broadcast in.
+      # - args: a single argument, the object the event relates to.
+      # - originator: who is responsible for initiating the event.
       def fire event_type, object
-        agency.call(event_type, channel_name_for(object), object.to_h)
+        meta = { originator: [@namespace, object.identifier.to_s] }
+        agency.call(event_type, channel_name_for(object), object.to_h, meta)
       end
   end
 end

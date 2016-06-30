@@ -113,8 +113,8 @@ module Shark
     # Proxy an event to the middleware stack. Each middleware entry is
     # responsible for passing the event to the next entry, so simply proxying
     # to the first entry is enough.
-    def call event, channel, *args
-      @middlewares.first.call(event, channel, *args)
+    def call event, channel, *args, **kwargs
+      @middlewares.first.call(event, channel, *args, kwargs)
     end
   end
 end
