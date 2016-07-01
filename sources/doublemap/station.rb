@@ -28,7 +28,7 @@ module DoubleMap
       @data.each do |key, info|
         # If the station already exists in the manager, load it. Otherwise,
         # create a new one.
-        station = manager.get(key) || ::Shark::Station.new
+        station = manager.find_or_new(key)
         # Update the information on the Station object to match the current
         # data from the source
         station.assign(info)

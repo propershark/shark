@@ -9,6 +9,7 @@ require_relative 'objects/station'
 require_relative 'object_manager'
 require_relative 'sources/citybus'
 require_relative 'sources/doublemap'
+require_relative 'storage'
 require_relative 'middleware'
 
 

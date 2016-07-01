@@ -22,7 +22,7 @@ module CityBus
       @data.each do |key, info|
         # If the vehicle already exists in the manager, load it. Otherwise,
         # create a new one.
-        vehicle = manager.get(key) || ::Shark::Vehicle.new
+        vehicle = manager.find_or_new(key)
         # Update the information on the Vehicle object to match the current
         # data from the source
         vehicle.assign(info)

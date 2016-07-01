@@ -4,6 +4,7 @@ namespace: com.propershark.citybus
 managers:
   # The ObjectManager for maintaining route information
   route_manager:
+    type: Route
     update_frequency: 1d
     namespace: routes
     sources:
@@ -19,6 +20,9 @@ managers:
 
   # The ObjectManager for maintaining vehicle information
   vehicle_manager:
+    # The type of object this manager maintains. All objects passed through
+    # this manager are assumed to be of this type
+    type: Vehicle
     # How often updates for this agency will be published
     update_frequency: 2s
     # Appended to the agency namespace, the namespace prefix used for vehicle
@@ -35,6 +39,7 @@ managers:
 
   # The ObjectManager for maintaining station information
   station_manager:
+    type: Station
     update_frequency: 1d
     namespace: stations
     sources:
