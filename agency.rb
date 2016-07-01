@@ -38,7 +38,7 @@ module Shark
     # this Agency
     attr_accessor :managers
     # The Middleware instances that are attached to this agency
-    attr_accessor :middlewares
+    attr_accessor :middleware
 
 
     def initialize config: nil, config_file: nil
@@ -88,13 +88,14 @@ module Shark
     # This method will block until all middleware instances are fully
     # initialized (their `ready?` method returns true).
     def create_middlewares
-      @middlewares = self.class.middlewares.each.with_object(nil).map do |(klass, args, kwargs), app|
-        klass.new(app, *args, **kwargs)
+      instance_list = []
+      @middleware = self.class.middlewares.inject(nil) do |app, (klass, args, kwargs)|
+        klass.new(app, *args, **kwargs).tap{ |inst| instance_list << inst }
       end
       # Some Middlewares will use background threads to process work. By
       # sleeping for a short time between checks, those threads can work
       # concurrently instead of each one blocking serially.
-      sleep(0.01) until @middlewares.drop_while(&:ready?).empty?
+      sleep(0.01) until instance_list.drop_while(&:ready?).empty?
     end
 
     # Register the managers with the scheduler to update at the interval
@@ -115,7 +116,7 @@ module Shark
     # responsible for passing the event to the next entry, so simply proxying
     # to the first entry is enough.
     def call event, channel, *args, **kwargs
-      @middlewares.first.call(event, channel, *args, kwargs)
+      @middleware.call(event, channel, *args, kwargs)
     end
   end
 end

@@ -31,7 +31,6 @@ module CityBus
     # on the given manager as they come up
     def update manager
       @data.each do |key, info|
-        puts info
         # If the vehicle already exists in the manager, load it. Otherwise,
         # create a new one.
         vehicle = manager.find_or_new(key)
