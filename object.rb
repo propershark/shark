@@ -18,6 +18,16 @@ module Shark
       def primary_attribute name
         @identifying_attribute = name
       end
+
+      # Return the universally-unique identifier that an object of this type
+      # would have if it had the given local identifier. If this method is not
+      # overridden by an Object type, the default will be the type name in a
+      # naively-plural form, followed by a `.` and the local identifier. EX:
+      #     Route.identifier_for "1A"       ->    routes.1A
+      #     Vehicle.identifier_for "4005"   ->    vehicles.4005
+      def identifier_for identifier
+        "#{name.gsub(/^.*::/,'').downcase}s.#{identifier}"
+      end
     end
 
     # Objects can maintain lists of objects with which they associate. This is
@@ -33,6 +43,7 @@ module Shark
       assign(args)
       @associated_objects = Hash.new{ [] }
     end
+
 
     # Add the given object as an associate to this object.
     def associate klass, identifier

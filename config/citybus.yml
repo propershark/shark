@@ -35,7 +35,9 @@ managers:
         endpoint: buses
         key:      name
       CityBus::VehicleSource:
-        key:      name
+        key:          name
+        route_key:    short_name
+        station_key:  stop_code
 
   # The ObjectManager for maintaining station information
   station_manager:
@@ -46,6 +48,6 @@ managers:
       DoubleMap::StationSource:
         agency:   citybus
         endpoint: stops
-        key:      short_name
+        key:      stop_code
       CityBus::StationSource:
         key:      stop_code
