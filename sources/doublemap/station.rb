@@ -5,7 +5,7 @@ module DoubleMap
     ATTRIBUTE_MAP = {
       code: 'id',
       name: 'name',
-      short_name: 'short_name',
+      stop_code: 'stop_code',
       description: 'description',
       latitude: 'lat',
       longitude: 'lon'
@@ -14,7 +14,7 @@ module DoubleMap
     # Update the local cache of data to prepare for an `update` cycle
     def refresh
       @data = self.get.map do |station|
-        station['short_name'] = station['name'][/BUS\w*|TEMP\w*/].chomp
+        station['stop_code'] = station['name'][/BUS\w*|TEMP\w*/].chomp
         mapped_info = ATTRIBUTE_MAP.each_with_object({}) do |(prop, name), h|
           h[prop] = station[name]
         end
