@@ -29,7 +29,7 @@ module Shark
     # TODO: determine unit of speed (mph, mps, kph, etc)
     attribute :speed
 
-    # Vehicles should be uniquely indentifiable by their code.
-    primary_attribute :code
+    # Vehicles should be uniquely indentifiable by their name.
+    primary_attribute :name
   end
 end
