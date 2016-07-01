@@ -37,5 +37,5 @@ end
 
 
 # Include packaged adapters
-require_relative 'storage_adapters/abstract'
-require_relative 'storage_adapters/memory'
+require_relative 'storage/adapters/abstract'
+require_relative 'storage/adapters/memory'
