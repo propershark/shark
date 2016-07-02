@@ -1,3 +1,5 @@
+require 'set'
+
 module Shark
   # Wrapping class for objects to allow hash-based initialization and updating
   # of attributes.
@@ -41,13 +43,13 @@ module Shark
     # attributes will not be given a value.
     def initialize args={}
       assign(args)
-      @associated_objects = Hash.new{ [] }
+      @associated_objects = Hash.new{ |h, k| h[k] = Set.new }
     end
 
 
     # Add the given object as an associate to this object.
     def associate klass, identifier
-      @associated_objects[klass].push(identifier)
+      @associated_objects[klass].add(identifier)
     end
 
     # Remove any association with the given object.
