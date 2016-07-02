@@ -13,10 +13,16 @@ class Conductor < Shark::Middleware
     return unless channel.start_with? @vehicle_namespace
 
     vehicle = args.first
-    next_station = @storage.find(vehicle[:next_station])
-    if next_station
-      puts "#{vehicle[:name]} will be arriving at \"#{next_station.name}\" next."
-      @app.call(:vehicle_arrival, vehicle[:next_station], vehicle, { originator: channel })
+    route_vehicle_update(vehicle, channel)
+  end
+
+  # Publish a vehicle_update to the Route that this vehicle belongs to.
+  def route_vehicle_update vehicle, originator
+    route_id = vehicle[:route]
+    route = @storage.find(route_id)
+    if route
+      puts "#{vehicle[:name]} is traveling on #{route.short_name} - #{route.name}"
+      @app.call(:vehicle_update, route_id, vehicle, { originator: originator })
     end
   end
 end
