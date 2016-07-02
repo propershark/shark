@@ -4,7 +4,6 @@ class Conductor < Shark::Middleware
   def initialize app, vehicle_namespace:
     super(app)
     @vehicle_namespace = vehicle_namespace
-    @storage = Shark::Storage.adapter
   end
 
   def call event, channel, *args, **kwargs
