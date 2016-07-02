@@ -1,18 +1,24 @@
 module Shark
   class Route < Object
-    # The identifying code for this route
+    # [Integer] The identifying code for this route
     attribute :code
-    # The (often) humanized name for this route
+    # [String] The (often) humanized name for this route
     attribute :name
-    # The name of this route used on maps and signs to quickly identify it
+    # [String] The name of this route used on maps and signs to quickly
+    # identify it
     attribute :short_name
-    # The quick summary of what/where this route services
+    # [String] The quick summary of what/where this route services
     attribute :description
-    # The hexadecimal color used to shade this route on maps
+    # [String] The hexadecimal color used to shade this route on maps. Includes
+    # the leading hash character.
     attribute :color
-    # The geo-spatial path that this route takes, stored as [lat, lon] pairs
+    # [Array[Float, Float]] The geo-spatial path that this route takes, stored
+    # as [lat, lon] pairs
     attribute :path
-    # The ordered list of stations that this route touches
+    # [Array[String]] The ordered list of Stations that this route touches.
+    # NOTE: Only the identifier for each Station will be stored. If the rest of
+    # their information is needed, a lookup must be performed on the storage
+    # adapter.
     attribute :stations
 
     # While routes can be uniquely identified by their code, the code is not
