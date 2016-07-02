@@ -19,6 +19,9 @@ module Shark
       # above this one), `@app` will be a blank Proc since it responds to
       # `.call` and doesn't error with the wrong number of arguments.
       @app = app || Proc.new{}
+      # Provide instance-level access to the storage adapter being used by
+      # the main app.
+      @storage = Storage.adapter
     end
 
     # Return a truthy value when this middleware is fully initialized and ready

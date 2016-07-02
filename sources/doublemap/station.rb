@@ -5,7 +5,7 @@ module DoubleMap
     ATTRIBUTE_MAP = {
       code: 'id',
       name: 'name',
-      short_name: 'short_name',
+      stop_code: 'stop_code',
       description: 'description',
       latitude: 'lat',
       longitude: 'lon'
@@ -14,7 +14,7 @@ module DoubleMap
     # Update the local cache of data to prepare for an `update` cycle
     def refresh
       @data = self.get.map do |station|
-        station['short_name'] = station['name'][/BUS\w*|TEMP\w*/].chomp
+        station['stop_code'] = station['name'][/BUS\w*|TEMP\w*/].chomp
         mapped_info = ATTRIBUTE_MAP.each_with_object({}) do |(prop, name), h|
           h[prop] = station[name]
         end
@@ -28,7 +28,7 @@ module DoubleMap
       @data.each do |key, info|
         # If the station already exists in the manager, load it. Otherwise,
         # create a new one.
-        station = manager.get(key) || ::Shark::Station.new
+        station = manager.find_or_new(key)
         # Update the information on the Station object to match the current
         # data from the source
         station.assign(info)

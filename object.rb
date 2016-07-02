@@ -1,3 +1,5 @@
+require 'set'
+
 module Shark
   # Wrapping class for objects to allow hash-based initialization and updating
   # of attributes.
@@ -18,13 +20,49 @@ module Shark
       def primary_attribute name
         @identifying_attribute = name
       end
+
+      # Return the universally-unique identifier that an object of this type
+      # would have if it had the given local identifier. If this method is not
+      # overridden by an Object type, the default will be the type name in a
+      # naively-plural form, followed by a `.` and the local identifier. EX:
+      #     Route.identifier_for "1A"       ->    routes.1A
+      #     Vehicle.identifier_for "4005"   ->    vehicles.4005
+      def identifier_for identifier
+        "#{name.gsub(/^.*::/,'').downcase}s.#{identifier}"
+      end
     end
+
+    # Objects can maintain lists of objects with which they associate. This is
+    # useful for keeping track of a changing set of related objects (as
+    # opposed to a static set) such as Vehicles arriving at a Station.
+    # `associated_objects` is a Hash of object types to lists of identifiers.
+    attr_accessor :associated_objects
+
 
     # Instantiate a new Object, initializing the attributes provided. Other
     # attributes will not be given a value.
     def initialize args={}
       assign(args)
+      @associated_objects = Hash.new{ |h, k| h[k] = Set.new }
     end
+
+
+    # Add the given object as an associate to this object.
+    def associate klass, identifier
+      @associated_objects[klass].add(identifier)
+    end
+
+    # Remove any association with the given object.
+    def dissociate klass, identifier
+      @associated_objects[klass].delete(identifier)
+    end
+
+    # Return true if this object has an association record with the given
+    # object.
+    def has_association_to klass, identifier
+      @associated_objects[klass].include?(identifier)
+    end
+
 
     # For every attribute given in `args`, assign it's value on this Object to
     # the provided value.
@@ -36,6 +74,7 @@ module Shark
     def identifier
       send(self.class.identifying_attribute)
     end
+
 
     # Return a Hash representation of this Object containing all attributes
     # defined on it through `attr_accessor`.

@@ -31,7 +31,7 @@ module DoubleMap
       @data.each do |key, info|
         # If the route already exists in the manager, load it. Otherwise,
         # create a new one.
-        route = manager.get(key) || ::Shark::Route.new
+        route = manager.find_or_new(key)
         # Update the information on the Route object to match the current
         # data from the source
         route.assign(info)

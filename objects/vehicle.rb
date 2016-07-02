@@ -15,9 +15,9 @@ module Shark
     # The fullness of the vehicle expressed as a percentage
     attribute :saturation
     # The last stop that this vehicle departed from
-    attribute :last_stop
+    attribute :last_station
     # The next stop that this vehicle will arrive at
-    attribute :next_stop
+    attribute :next_station
     # The route that this vehicle is currently traveling on
     attribute :route
     # The amount of time by which this vehicle currently differs from the
@@ -29,7 +29,7 @@ module Shark
     # TODO: determine unit of speed (mph, mps, kph, etc)
     attribute :speed
 
-    # Vehicles should be uniquely indentifiable by their code.
-    primary_attribute :code
+    # Vehicles should be uniquely indentifiable by their name.
+    primary_attribute :name
   end
 end

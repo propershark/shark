@@ -1,10 +1,11 @@
+require 'set'
+
 module Shark
   class ObjectManager
-    # A hash of objects that this manager has dealt with at some point in it's
-    # lifetime. This allows objects to be "deactivated" and "reactivated" at
-    # any point while retaining all of their information, avoiding the need for
-    # an external cache.
-    attr_accessor :known_objects
+    # A reference to the storage adapter being used. This is generally a global
+    # value, but having a local reference to it simplifies code lines, and
+    # allows for overrides if necessary.
+    attr_accessor :storage
     # A hash of objects that this manager is currently dealing with. Objects in
     # this hash will participate in all activities that this manager performs.
     # Objects not in this hash but in `known_objects` will not participate in
@@ -29,9 +30,10 @@ module Shark
 
 
     # Instantiate a new ObjectManager
-    def initialize update_frequency: '5s', agency:, namespace: '', sources: []
-      @known_objects    = {}
-      @active_objects   = {}
+    def initialize type:, update_frequency: '5s', agency:, namespace: '', sources: []
+      @storage          = Storage.adapter
+      @active_objects   = Set.new
+      @klass            = Shark.const_get(type.to_s)
       @update_frequency = update_frequency
       @agency           = agency
       @namespace        = namespace
@@ -49,48 +51,49 @@ module Shark
     end
 
     # Add an object to `active_objects`. If the object is not already in
-    # `known_objects`, add it to that hash as well.
+    # `storage`, add it there as well.
     def activate object
-      pk = pk_for(object)
-      @active_objects[pk] = object
-      @known_objects[pk] = object
+      id = identifier_for(object)
+      @active_objects << id
+      @storage.create(id, object)
     end
 
     # Remove an object from `active_objects`, but keep its entry in
-    # `known_objects`.
+    # `storage`.
     def deactivate object
-      @active_objects.delete pk_for(object)
+      @active_objects.delete identifier_for(object)
     end
 
-    # Remove all objects from `active_objects`. Entries in `known_objects` will
-    # be preserved.
+    # Remove all objects from `active_objects`. Entries in `storage` will be
+    # preserved.
     def deactivate_all
       @active_objects.clear
     end
 
     # Completely remove an object from this manager. Its entries in both
-    # `active_objects` and `known_objects` will be deleted.
+    # `active_objects` and `storage` will be deleted.
     def remove object
       pk = pk_for(object)
+      full_identifier = identifier_for(object)
       @active_objects.delete pk
-      @known_objects.delete pk
+      @storage.remove(full_identifier)
     end
 
     # Return the object matching the key of the given object in the
     # `known_objects` hash, or nil if no match exists.
-    def get key
-      @known_objects[key] || nil
+    def find key
+      @storage.find(key) || nil
+    end
+
+    # Return the object matching the key of the given object in the
+    # `known_objects` hash, or create a new instance if no match exists.
+    def find_or_new key
+      find(key) || @klass.new
     end
 
     # Call the given block once for each active object, passing that object as
     # a parameter.
     def each &block
-      @active_objects.each_value &block
-    end
-
-    # Call the given block once for each active object, passing the primary key
-    # used to index that object and that object as parameters.
-    def each_with_pk &block
       @active_objects.each &block
     end
 
@@ -109,16 +112,16 @@ module Shark
       end
       # If any new objects were activated in this session, publish an
       # `activate` event
-      (@active_objects.keys - previously_active.keys).each do |key|
-        fire(:activate, @active_objects[key])
+      (@active_objects - previously_active).each do |key|
+        fire(:activate, @storage.find(key))
       end
       # Do the same for any objects that are no longer active
-      (previously_active.keys - @active_objects.keys).each do |key|
-        fire(:deactivate, previously_active[key])
+      (previously_active - @active_objects).each do |key|
+        fire(:deactivate, @storage.find(key))
       end
       # Publish update events for each currently active object
-      @active_objects.each do |key, object|
-        fire(:update, object)
+      @active_objects.each do |key|
+        fire(:update, @storage.find(key))
       end
     end
 
@@ -133,6 +136,7 @@ module Shark
       def channel_name_for object
         "#{@namespace}.#{object.identifier}"
       end
+      alias_method :identifier_for, :channel_name_for
 
       # Create an event to be sent out from the agency. The event consists of:
       # - event_type: the type of event being sent.

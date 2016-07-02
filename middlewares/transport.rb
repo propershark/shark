@@ -36,12 +36,9 @@ class Transport < Shark::Middleware
 
   # Publish public events over the WAMP socket, ignore any other events
   def call event, channel, *args, **kwargs
-    case event
-    # For now, only these events matter
-    when :activate, :deactivate, :update
-      puts "#{kwargs[:originator]} published a '#{event}' event to #{channel}"
-      @session.publish(channel, args, event: event, originator: kwargs[:originator])
-    end
+    # For now, all events will get passed through
+    puts "#{kwargs[:originator]} published a '#{event}' event to #{channel}"
+    @session.publish(channel, args, event: event, originator: kwargs[:originator])
 
     # This is a pass-through middleware, so proxy the event up.
     @app.call(event, channel, *args, kwargs)
