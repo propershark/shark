@@ -12,11 +12,11 @@ managers:
       # of the source class to be instantiated, the value is a hash of
       # arguments to pass to the initializer as keyword arguments.
       DoubleMap::RouteSource:
-        agency:   citybus
-        endpoint: routes
-        key:      short_name
+        agency:       citybus
+        key:          short_name
+        station_key:  stop_code
       CityBus::RouteSource:
-        key:      short_name
+        key:          short_name
 
   # The ObjectManager for maintaining vehicle information
   vehicle_manager:
@@ -31,9 +31,10 @@ managers:
     # The list of sources that this manager will poll every update
     sources:
       DoubleMap::VehicleSource:
-        agency:   citybus
-        endpoint: buses
-        key:      name
+        agency:       citybus
+        key:          name
+        route_key:    short_name
+        station_key:  stop_code
       CityBus::VehicleSource:
         key:          name
         route_key:    short_name
@@ -47,7 +48,6 @@ managers:
     sources:
       DoubleMap::StationSource:
         agency:   citybus
-        endpoint: stops
         key:      stop_code
       CityBus::StationSource:
         key:      stop_code

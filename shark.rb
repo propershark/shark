@@ -1,4 +1,5 @@
 require './core_ext/hash.rb'
+require './hacks/doublemap_api/models/stop.rb'
 require './agency.rb'
 
 require_relative 'middlewares/conductor'

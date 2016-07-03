@@ -1,6 +1,9 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    doublemap_api (2.0.0)
+      httparty (~> 0.13)
+      memoist (~> 0.14)
     eventmachine (1.2.0.1)
     httparty (0.13.7)
       json (~> 1.8)
@@ -9,10 +12,10 @@ GEM
     memoist (0.14.0)
     multi_xml (0.5.5)
     rufus-scheduler (3.2.1)
-    tripspark_api (0.1.0)
+    tripspark_api (0.1.1)
       httparty (~> 0.13)
       memoist (~> 0.14)
-    wamp_client (0.0.2)
+    wamp_client (0.0.3)
       json (~> 1.8.3)
       websocket-eventmachine-client (~> 1.1.0)
     websocket (1.2.3)
@@ -28,6 +31,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  doublemap_api
   httparty
   rufus-scheduler
   tripspark_api

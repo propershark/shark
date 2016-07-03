@@ -2,23 +2,21 @@ module DoubleMap
   class StationSource < Source
     # A key-value map of attributes on the Station class to entries in the
     # source data
-    ATTRIBUTE_MAP = {
-      code: 'id',
-      name: 'name',
-      stop_code: 'stop_code',
-      description: 'description',
-      latitude: 'lat',
-      longitude: 'lon'
-    }
+    ATTRIBUTES = [
+      'name',
+      'description',
+      'lat',
+      'lon',
+      'stop_code'
+    ]
 
     # Update the local cache of data to prepare for an `update` cycle
     def refresh
-      @data = self.get.map do |station|
-        station['stop_code'] = station['name'][/BUS\w*|TEMP\w*/].chomp
-        mapped_info = ATTRIBUTE_MAP.each_with_object({}) do |(prop, name), h|
-          h[prop] = station[name]
-        end
-        [station[@key], mapped_info]
+      # For each station, create a hash of the values of each attribute and add
+      # that hash to the data hash, indexed by the primary key specified in
+      # the configuration of this Source.
+      @data = doublemap.stops.all.map do |stop|
+        [stop.send(@key), ATTRIBUTES.map{ |name| [name, stop.send(name)] }.to_h]
       end.to_h
     end
 

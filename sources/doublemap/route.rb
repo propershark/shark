@@ -8,20 +8,30 @@ module DoubleMap
       short_name: 'short_name',
       description: 'description',
       color: 'color',
-      path: 'path',
-      stations: 'stops'
     }
+
+    # This source requires an extra parameter for creating associations between
+    # Routes and their Stations.
+    def initialize agency:, key:, station_key:
+      super(agency: agency, key: key)
+      @station_key  = station_key
+    end
 
     # Update the local cache of data to prepare for an `update` cycle
     def refresh
-      @data = self.get.map do |route|
-        # Convert the route's path from a flat list into pairs.
-        route['path'] = route['path'].each_slice(2).to_a
-        route['short_name'] = route['name'].split.first if route['short_name'].empty?
+      @data = doublemap.routes.all.map do |route|
         mapped_info = ATTRIBUTE_MAP.each_with_object({}) do |(prop, name), h|
-          h[prop] = route[name]
+          h[prop] = route.send(name)
         end
-        [route[@key], mapped_info]
+        # Convert the route's path from a flat list into pairs.
+        mapped_info['path'] = route.path.each_slice(2).to_a
+        # Ensure that the short name of the route (commonly it's
+        # primary_attribute) is set.
+        mapped_info['short_name'] = route.name.split.first if route.short_name.empty?
+        mapped_info['stations'] = route.stops.map do |stop_id|
+          doublemap.stops.get(stop_id).send(@station_key)
+        end
+        [route.send(@key), mapped_info]
       end.to_h
     end
 

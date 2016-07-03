@@ -8,3 +8,5 @@ gem 'rufus-scheduler'
 gem 'httparty'
 # API wrapper for TripSpark systems
 gem 'tripspark_api'
+# API wrapper for DoubleMap systems
+gem 'doublemap_api'
