@@ -9,11 +9,11 @@ class Conductor < Shark::Middleware
   def call event, channel, *args, **kwargs
     # Immediately pass the original event through to the next Middleware
     @app.call(event, channel, *args, kwargs)
-    # Only continue if this was a vehicle update
-    return unless channel.start_with? @vehicle_namespace
-
-    vehicle = args.first
-    route_vehicle_update(vehicle, channel)
+    case channel
+    when /#{Regexp.quote(@vehicle_namespace)}\..*/
+      vehicle = args.first
+      route_vehicle_update(vehicle, channel)
+    end
   end
 
   # Publish a vehicle_update to the Route that this vehicle belongs to.
