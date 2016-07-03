@@ -1,5 +1,4 @@
 require 'tripspark_api'
-require 'json'
 
 # TODO:
 # Technically, this could be generalized to "module TripSpark", as they service
