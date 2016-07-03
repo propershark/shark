@@ -1,6 +1,10 @@
 require 'doublemap_api'
+require_relative '../source.rb'
 
-module DoubleMap
+module DoubleMapSource
+  extend Shark::Source
+
+
   class Source
     # The name of the agency providing information via doublemap. This should
     # match the subdomain used on doublemap.com
@@ -31,6 +35,6 @@ module DoubleMap
   end
 end
 
-require_relative 'doublemap/route'
-require_relative 'doublemap/station'
-require_relative 'doublemap/vehicle'
+# require_relative 'doublemap/route'
+# require_relative 'doublemap/station'
+# require_relative 'doublemap/vehicle'
