@@ -6,28 +6,11 @@ module Shark
     # configuration methods.
     class NormalSource
       class << self
-        # The class-level configuration used by all instances of this Source.
-        # Each Source instance will create its own copy of this configuration
-        # to apply it's instance-level configuration to.
-        def configuration
-          @configuration ||= Source.configuration
-        end
-
-        # Yield this class's configuration object so that it can be modified.
-        # If called more than once, the existing object will be passed out,
-        # meaning configuration can take place in multiple stages.
-        def configure
-          yield configuration
-          configuration
-        end
+        include Configurable
       end
 
-
-      # The full configuration object used by this Source instance. Most
-      # options will be set as class configuration, but instance-level options
-      # will be included here as well.
-      attr_accessor :configuration
-
+      include Configurable
+      inherit_configuration_from self.class
 
       # Instantiate a new Source object, with any additionally configuration
       # for this Source instance provided as a Hash.
@@ -38,20 +21,11 @@ module Shark
       def initialize instance_config={}
         # Create a copy of the class configuration, so as not to modify it
         # while applying the instance-level configuration for this Source.
-        @configuration = self.class.configuration.dup.__apply(instance_config)
+        configuration.__apply(instance_config)
         # A generic hash of information that will persist along with this
         # Source. Commonly used to store information in `refresh` that will be
         # used in `update`.
         @data = {}
-      end
-
-
-      # Yield this class's configuration object so that it can be modified.
-      # If called more than once, the existing object will be passed out,
-      # meaning configuration can take place in multiple stages.
-      def configure
-        yield configuration
-        configuration
       end
 
 

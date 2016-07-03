@@ -1,4 +1,5 @@
-require_relative 'source/configuration.rb'
+require_relative 'configurable'
+
 require_relative 'source/normal_source.rb'
 
 module Shark
@@ -6,10 +7,14 @@ module Shark
   # from, as well as utilities to register and instantiate new source types
   # based on humanized names.
   module Source
+    extend self
+
+    include Configurable
+
     # Register a new Source class under a humanized name. Source classes will
     # be unique for a given name-object_type pair. That is, multiple Sources
     # can share the same humanized name, but have unique
-    def self.register_source name, object_type, klass, fail_on_override: true
+    def register_source name, object_type, klass, fail_on_override: true
       @@sources ||= {}
       key = [name, object_type]
       # Unless supressed, raise an error if a Source is already registered
@@ -23,12 +28,11 @@ module Shark
 
     # Instantiate a new Source class, the exact type of which is determined by
     # set of currently registered sources and the name-object_type pair given.
-    # `configuration` will be passed through to the initializer for the new
-    # Source instance.
-    def self.create name, object_type, configuration={}
+    # `config` will be passed through to the initializer for the new instance.
+    def create name, object_type, config={}
       klass = @@sources[[name, object_type]]
       raise "No Source registered with name #{name} and type #{object_type}." unless klass
-      klass.new(configuration)
+      klass.new(config)
     end
   end
 end
