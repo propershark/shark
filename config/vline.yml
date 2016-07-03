@@ -1,0 +1,29 @@
+namespace: com.propershark.vline
+managers:
+  route_manager:
+    type: Route
+    update_frequency: 1d
+    namespace: routes
+    sources:
+      DoubleMap::RouteSource:
+        agency:       vline
+        key:          short_name
+        station_key:  id
+  vehicle_manager:
+    type: Vehicle
+    update_frequency: 2s
+    namespace: vehicles
+    sources:
+      DoubleMap::VehicleSource:
+        agency:       vline
+        key:          name
+        route_key:    short_name
+        station_key:  id
+  station_manager:
+    type: Station
+    update_frequency: 1d
+    namespace: stations
+    sources:
+      DoubleMap::StationSource:
+        agency:   vline
+        key:      id
