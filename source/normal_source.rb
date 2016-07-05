@@ -22,10 +22,19 @@ module Shark
         # Create a copy of the class configuration, so as not to modify it
         # while applying the instance-level configuration for this Source.
         configuration.__apply(instance_config)
+        read_configuration
         # A generic hash of information that will persist along with this
         # Source. Commonly used to store information in `refresh` that will be
         # used in `update`.
         @data = {}
+      end
+
+      # Provide a hook for classes to optionally read/apply configurations. By
+      # default, this method does nothing, and is simply provided for
+      # convenience.
+      # When overridden by a class, this method should also ensure that all
+      # necessary configuration options are provided.
+      def read_configuration
       end
 
 
