@@ -2,6 +2,10 @@ require 'yaml'
 
 require 'rufus-scheduler'
 
+require_relative 'configurable'
+require_relative 'configurable/configuration'
+require_relative 'configurable/agency_configuration'
+require_relative 'core_ext/hash'
 require_relative 'object'
 require_relative 'objects/vehicle'
 require_relative 'objects/route'
@@ -16,18 +20,14 @@ require_relative 'middleware'
 module Shark
   class Agency
     class << self
-      # A list of Middleware classes and the arguments used to initialize them
-      attr_accessor :middlewares
-
-      # Add a Middleware class that should be attached to every new agency.
-      # Any additional arguments will be passed to the Middleware initializer.
-      def use_middleware klass, *args, **kwargs
-        (@middlewares ||= []) << [klass, args, kwargs]
-      end
+      include Configurable
+      use_configuration_type AgencyConfiguration
     end
 
-    # A Hash of configuration data used to define this Agency.
-    attr_accessor :config
+    include Configurable
+    inherit_configuration_from self
+
+
     # The scheduler used to schedule events (e.g., update managers) for this
     # Agency
     attr_accessor :scheduler
@@ -37,14 +37,15 @@ module Shark
     # The ObjectManager instances that cover all of the services provided by
     # this Agency
     attr_accessor :managers
-    # The Middleware instances that are attached to this agency
+    # The first Middleware instance in the stack of middlewares that are
+    # attached to this agency
     attr_accessor :middleware
 
 
     def initialize config: nil, config_file: nil
       @config = config || YAML.load_file(config_file)
       @scheduler = Rufus::Scheduler.new
-      create_managers
+      # create_managers
       create_middlewares
     end
 
@@ -89,8 +90,8 @@ module Shark
     # initialized (their `ready?` method returns true).
     def create_middlewares
       instance_list = []
-      @middleware = self.class.middlewares.inject(nil) do |app, (klass, args, kwargs)|
-        klass.new(app, *args, **kwargs).tap{ |inst| instance_list << inst }
+      @middleware = configuration.middlewares.inject(nil) do |app, (klass, args, kwargs, config)|
+        klass.new(app, *args, **kwargs, &config).tap{ |inst| instance_list << inst }
       end
       # Some Middlewares will use background threads to process work. By
       # sleeping for a short time between checks, those threads can work

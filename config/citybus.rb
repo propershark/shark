@@ -1,42 +1,31 @@
+require_relative '../middlewares/transport'
+require_relative '../middlewares/conductor'
+
 # Configuration for all DoubleMap source objects
-DoubleMap.configure do |doublemap|
+DoubleMapSource.configure do |doublemap|
   doublemap.agency      = :citybus
   doublemap.route_key   = :short_name
   # DoubleMap does not have :stop_code as part of it's schema, but it is useful
   # for creating shorter channel names. This lambda essentially patches
   # stop_code onto DoubleMap::Station objects.
-  doublemap.station_key = ->{ |station| station.name[/BUS\w*|TEMP\w*/].chomp }
+  doublemap.station_key = ->(station){ station.name[/BUS\w*|TEMP\w*/].chomp }
   doublemap.vehicle_key = :name
 end
 
 
-# Configuration for all CityBus source objects
-CityBus.configure do |citybus|
-  citybus.route_key     = :short_name
-  citybus.station_key   = :stop_code
-  citybus.vehicle_key   = :name
-end
+# # Configuration for all CityBus source objects
+# CityBus.configure do |citybus|
+#   citybus.route_key     = :short_name
+#   citybus.station_key   = :stop_code
+#   citybus.vehicle_key   = :name
+# end
 
 
 # General agency configuration
 Shark::Agency.configure do |agency|
-  # Define the namespace prefixes to use when creating events for different
-  # objects. Object identifiers will be prefixed with the namespace for their
-  # type to create a universally-unique identifier. For example, using this
-  # configuration, a Route with the identifier "1A", would have a universally-
-  # unique identifier of "routes.1A".
-  #
-  # These are the default values for the namespaces, but are given here as an
-  # example of how to use this configuration.
-  agency.namespaces = {
-    routes: 'routes.',
-    stations: 'stations.',
-    vehicles: 'vehicles.'
-  }
-
   # Create a manager for Route objects
   agency.use_manager :route_manager do |manager|
-    manager.object_type       = Route
+    manager.object_type       = Shark::Route
     manager.update_frequency  = '4h'
     manager.namespace         = 'routes'
 
@@ -47,7 +36,7 @@ Shark::Agency.configure do |agency|
 
   # Create a manager for Station objects
   agency.use_manager :station_manager do |manager|
-    manager.object_type       = Station
+    manager.object_type       = Shark::Station
     manager.update_frequency  = '1d'
     manager.namespace         = 'stations'
 
@@ -58,7 +47,7 @@ Shark::Agency.configure do |agency|
 
   # Create a manager for Vehicle objects
   agency.use_manager :vehicle_manager do |manager|
-    manager.object_type       = Vehicle
+    manager.object_type       = Shark::Vehicle
     manager.update_frequency  = '2s'
     manager.namespace         = 'vehicles'
 
@@ -68,6 +57,6 @@ Shark::Agency.configure do |agency|
   end
 
 
-  agency.use_middleware Transport
-  agency.use_middleware Conductor
+  agency.use_middleware Transport, config_file: 'config/transport.yml'
+  agency.use_middleware Conductor, vehicle_namespace: 'vehicles.'
 end

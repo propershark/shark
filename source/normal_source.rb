@@ -10,7 +10,7 @@ module Shark
       end
 
       include Configurable
-      inherit_configuration_from self.class
+      inherit_configuration_from self
 
       # Instantiate a new Source object, with any additionally configuration
       # for this Source instance provided as a Hash.

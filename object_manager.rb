@@ -1,16 +1,26 @@
 require 'set'
 
+require_relative 'configurable/object_manager_configuration'
+
 module Shark
   class ObjectManager
-    # A reference to the storage adapter being used. This is generally a global
-    # value, but having a local reference to it simplifies code lines, and
-    # allows for overrides if necessary.
-    attr_accessor :storage
+    class << self
+      include Configurable
+      use_configuration_type ObjectManagerConfiguration
+    end
+    include Configurable
+    inherit_configuration_from self
+
+
     # A hash of objects that this manager is currently dealing with. Objects in
     # this hash will participate in all activities that this manager performs.
     # Objects not in this hash but in `known_objects` will not participate in
     # these activities.
     attr_accessor :active_objects
+    # A reference to the storage adapter being used. This is generally a global
+    # value, but having a local reference to it simplifies code lines, and
+    # allows for overrides if necessary.
+    attr_accessor :storage
     # The frequency at which this manager should perform update cycles. That
     # is, how often the sources will be polled and events will be published.
     # Note that the owner of the manager is responsible for scheduling; this
@@ -29,25 +39,25 @@ module Shark
     attr_accessor :sources
 
 
-    # Instantiate a new ObjectManager
-    def initialize type:, update_frequency: '5s', agency:, namespace: '', sources: []
-      @storage          = Storage.adapter
+    # Instantiate a new ObjectManager, first calling the configurator to apply
+    # any instance-level configurations, then applying those configurations to
+    # attributes of this class.
+    def initialize name, &configurator
+      # Apply the configurator's options
+      configure &configurator
       @active_objects   = Set.new
-      @klass            = Shark.const_get(type.to_s)
-      @update_frequency = update_frequency
-      @agency           = agency
-      @namespace        = namespace
-      @sources          = sources
-    end
-
-    # Add a new Source object to the list of sources.
-    def add_source source
-      @sources << source
-    end
-
-    # Remove a Source object from the list of sources.
-    def remove_source source
-      @sources.delete source
+      # TODO: Include `storage` in the configuration
+      @storage          = Storage.adapter
+      @klass            = configuration.object_type
+      @update_frequency = configuration.update_frequency
+      @agency           = configuration.agency
+      @namespace        = configuration.namespace
+      # Create the source instances by lookup based on the given name, and the
+      # object_type specified for thie ObjectManager. Additionally, apply any
+      # additional configuration that was given for each Source.
+      @sources          = configuration.sources.map do |name, config|
+        Source.create(name, @klass, config)
+      end
     end
 
     # Add an object to `active_objects`. If the object is not already in
