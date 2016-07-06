@@ -1,7 +1,5 @@
 module DoubleMapSource
   class RouteSource < Source
-    attr_accessor :station_key
-
     def refresh
       @data = api.routes.all.map do |route|
         attrs = @route_attributes.each_with_object({}) do |(prop, name), h|
