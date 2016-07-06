@@ -12,10 +12,16 @@ module Shark
     inherit_configuration_from self
 
 
+    # A human name for this manager. Not used internally, but useful for
+    # reflecting on instances within an Agency.
+    attr_accessor :name
     # A hash of objects that this manager is currently dealing with. Objects in
     # this hash will participate in all activities that this manager performs.
     # Objects not in this hash but in `known_objects` will not participate in
     # these activities.
+    # The agency that this manager belongs to. All events that this manager
+    # creates will be pushed out to this agency.
+    attr_accessor :agency
     attr_accessor :active_objects
     # A reference to the storage adapter being used. This is generally a global
     # value, but having a local reference to it simplifies code lines, and
@@ -27,9 +33,6 @@ module Shark
     # attribute is simply here to match how frequencies are defined in the
     # configuration.
     attr_accessor :update_frequency
-    # The agency that this manager belongs to. All events that this manager
-    # creates will be pushed out to this agency.
-    attr_accessor :agency
     # The namespace prefix used to isolate events that this manager publishes.
     # Will be concatenated with object identifiers to form a unique, fully-
     # qualified channel name.
@@ -42,15 +45,16 @@ module Shark
     # Instantiate a new ObjectManager, first calling the configurator to apply
     # any instance-level configurations, then applying those configurations to
     # attributes of this class.
-    def initialize name, &configurator
+    def initialize name, agency, &configurator
       # Apply the configurator's options
       configure &configurator
+      @name             = name
+      @agency           = agency
       @active_objects   = Set.new
       # TODO: Include `storage` in the configuration
       @storage          = Storage.adapter
       @klass            = configuration.object_type
       @update_frequency = configuration.update_frequency
-      @agency           = configuration.agency
       @namespace        = configuration.namespace
       # Create the source instances by lookup based on the given name, and the
       # object_type specified for thie ObjectManager. Additionally, apply any
@@ -89,10 +93,10 @@ module Shark
       @storage.remove(full_identifier)
     end
 
-    # Return the object matching the key of the given object in the
-    # `known_objects` hash, or nil if no match exists.
+    # Return the object matching the key of the given object in `@storage`, or
+    # nil if no match exists.
     def find key
-      @storage.find(key) || nil
+      @storage.find("#{@namespace}.#{key}") || nil
     end
 
     # Return the object matching the key of the given object in the

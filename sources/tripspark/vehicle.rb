@@ -6,8 +6,8 @@ module TripSparkSource
       # the configuration of this Source.
       @data = api.vehicles.all.map do |vehicle|
         attrs = @vehicle_attributes.map{ |prop, name| [prop, vehicle.send(name)] }.to_h
-        route_key   = @route_key.call(api.routes.get(vehicle.route))
-        station_key = @station_key.call(api.stops.get(vehicle.next_stop))
+        route_key   = @route_key.call(vehicle.route)
+        station_key = @station_key.call(vehicle.next_stop)
         attrs[:route]         = Shark::Route.identifier_for(route_key)
         attrs[:next_station]  = Shark::Station.identifier_for(station_key)
         [@vehicle_key.call(vehicle), attrs]

@@ -14,14 +14,16 @@ DoubleMapSource.configure do |doublemap|
     name:         :name,
     short_name:   :short_name,
     description:  :description,
-    color:        :color
+    color:        :color,
+    path:         :path,
+    stations:     :stops
   }
 
   doublemap.station_attributes = {
     name:         :name,
     description:  :description,
-    lat:          :lat,
-    lon:          :lon
+    latitude:     :lat,
+    longitude:    :lon
   }
 
   doublemap.vehicle_attributes = {
