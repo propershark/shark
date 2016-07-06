@@ -1,24 +1,10 @@
 require_relative '../middlewares/transport'
 require_relative '../middlewares/conductor'
 
-# Configuration for all DoubleMap source objects
-DoubleMapSource.configure do |doublemap|
-  doublemap.agency      = :citybus
-  doublemap.route_key   = :short_name
-  # DoubleMap does not have :stop_code as part of it's schema, but it is useful
-  # for creating shorter channel names. This lambda essentially patches
-  # stop_code onto DoubleMap::Station objects.
-  doublemap.station_key = ->(station){ station.name[/BUS\w*|TEMP\w*/].chomp }
-  doublemap.vehicle_key = :name
-end
 
-
-# # Configuration for all CityBus source objects
-# CityBus.configure do |citybus|
-#   citybus.route_key     = :short_name
-#   citybus.station_key   = :stop_code
-#   citybus.vehicle_key   = :name
-# end
+# Include configuration for Sources
+require_relative 'doublemap_source'
+require_relative 'tripspark_source'
 
 
 # General agency configuration
@@ -31,7 +17,7 @@ Shark::Agency.configure do |agency|
 
     # Route information comes from DoubleMap and CityBus
     manager.source_from :doublemap
-    manager.source_from :citybus
+    manager.source_from :tripspark
   end
 
   # Create a manager for Station objects
@@ -53,7 +39,7 @@ Shark::Agency.configure do |agency|
 
     # Vehicle information comes from DoubleMap and CityBus
     manager.source_from :doublemap
-    manager.source_from :citybus
+    manager.source_from :tripspark
   end
 
 
