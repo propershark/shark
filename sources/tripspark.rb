@@ -1,12 +1,12 @@
-require 'doublemap_api'
+require 'tripspark_api'
 require_relative '../source.rb'
 
-module DoubleMapSource
+module TripSparkSource
   extend Shark::Source
 
   class Source < Shark::Source::NormalSource
     include Shark::Configurable
-    inherit_configuration_from DoubleMapSource
+    inherit_configuration_from TripSparkSource
 
     def read_configuration
       @route_attributes   ||= configuration.route_attributes
@@ -24,17 +24,13 @@ module DoubleMapSource
     def api
       @api ||= begin
         # This is configuring the gem, not this source
-        DoubleMap.configure do |config|
-          config.base_uri     = "http://#{configuration.agency}.doublemap.com/"
-          config.adapter      = :httparty
-          config.debug_output = false
-        end
-        DoubleMap.new
+        TripSpark.configure(&configuration.configure_api)
+        TripSpark.new
       end
     end
   end
 end
 
-require_relative 'doublemap/route'
-require_relative 'doublemap/station'
-require_relative 'doublemap/vehicle'
+require_relative 'tripspark/route'
+require_relative 'tripspark/station'
+require_relative 'tripspark/vehicle'
