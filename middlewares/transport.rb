@@ -2,8 +2,8 @@ require 'yaml'
 require 'wamp_client'
 
 class Transport < Shark::Middleware
-  # A Hash of configuration data used to define this transport.
-  attr_accessor :config
+  include Shark::Configurable
+
   # The WampClient object that manages the transport session
   attr_accessor :wamp_client
   # The Session object used to publish/subscribe events
@@ -11,12 +11,11 @@ class Transport < Shark::Middleware
   # The thread that wamp_client will be running in
   attr_accessor :thread
 
-  def initialize app, config_file:
-    super(app)
-    @config = YAML.load_file(config_file)
+  def initialize app
+    super
     # Create a new WampClient object and add a hook to keep the session
     # object up to date in case of network errors.
-    @wamp_client = WampClient::Connection.new(@config['wamp'].symbolize_keys)
+    @wamp_client = WampClient::Connection.new(configuraion.wamp.symbolize_keys)
     @wamp_client.on_join{ |session, _| @session = session }
     open
   end
