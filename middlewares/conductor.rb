@@ -1,31 +1,42 @@
 # A Middleware class for sending events about vehicles to stations in advance
 # of their arrival and after their departure
 class Conductor < Shark::Middleware
-  def initialize app, vehicle_namespace:
+  class << self
+    include Shark::Configurable
+  end
+
+  include Shark::Configurable
+  inherit_configuration_from self
+
+  # A map of event handlers indexed by namespace-topic pairs. New handlers can
+  # be added through a call to `Conductor.register_handler`. The handler will
+  # be called with the `app`, `channel`, `args`, and `kwargs` arguments.
+  #
+  # Any event that does not have a handler will use the default blank proc as
+  # a handler (i.e., nothing will happen, but no error will occur).
+  @@event_handlers = Hash.new{ |h, k| h[k] = Proc.new{} }
+  def self.register_handler namespace, event, &handler
+    @@event_handlers[[namespace, event]] = handler
+  end
+
+  def initialize app, *args
     super(app)
-    @vehicle_namespace = vehicle_namespace
   end
 
   def call event, channel, *args, **kwargs
     # Immediately pass the original event through to the next Middleware
     @app.call(event, channel, *args, kwargs)
-    case channel
-    when /#{Regexp.quote(@vehicle_namespace)}\..*/
-      vehicle = args.first
-      route_vehicle_update(vehicle, channel)
-    end
-  end
 
-  # Publish a vehicle_update to the Route that this vehicle belongs to.
-  def route_vehicle_update vehicle, originator
-    route_id = vehicle[:route]
-    route = @storage.find(route_id)
-    # Only continue if the route exists as a full object
-    return unless route
-    # Ensure that the Route has an association to the vehicle
-    route.associate(Shark::Vehicle, originator)
-    # Publish a vehicle_update event to the route.
-    puts "#{vehicle[:name]} is traveling on #{route.short_name} - #{route.name}"
-    @app.call(:vehicle_update, route_id, vehicle, { originator: originator })
+    # Instantiate and execute a handler for the event based on its namespace
+    namespace, topic = channel.split('.')
+    self.instance_exec(channel, args, kwargs, &@@event_handlers[[namespace, event]])
   end
 end
+
+
+# Include event-handling modules.
+# This pattern allows these modules to access instance variables like `@app`
+# and `@storage` without having to pass them around.
+require_relative 'conductor/route_events'
+require_relative 'conductor/station_events'
+require_relative 'conductor/vehicle_events'

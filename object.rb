@@ -57,6 +57,11 @@ module Shark
       @associated_objects[klass].delete(identifier)
     end
 
+    # Remove all associations of the given type from this object.
+    def dissociate_all klass
+      @associated_objects[klass].clear
+    end
+
     # Return true if this object has an association record with the given
     # object.
     def has_association_to klass, identifier

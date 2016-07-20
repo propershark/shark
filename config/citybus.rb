@@ -1,6 +1,6 @@
-require_relative '../middlewares/transport'
-require_relative '../middlewares/conductor'
-
+# Include middleware classes and their configurations
+require_relative './transport.rb'
+require_relative './conductor.rb'
 
 # Include configuration for Sources
 require_relative 'doublemap_source'
@@ -43,6 +43,6 @@ Shark::Agency.configure do |agency|
   end
 
 
-  agency.use_middleware Transport, config_file: 'config/transport.yml'
-  agency.use_middleware Conductor, vehicle_namespace: 'vehicles.'
+  agency.use_middleware Transport
+  agency.use_middleware Conductor
 end
