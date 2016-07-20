@@ -2,7 +2,13 @@ require 'yaml'
 require 'wamp_client'
 
 class Transport < Shark::Middleware
+  class << self
+    include Shark::Configurable
+  end
+
   include Shark::Configurable
+  inherit_configuration_from self
+
 
   # The WampClient object that manages the transport session
   attr_accessor :wamp_client
@@ -11,11 +17,12 @@ class Transport < Shark::Middleware
   # The thread that wamp_client will be running in
   attr_accessor :thread
 
-  def initialize app
-    super
+  def initialize app, *args
+    super(app)
+    @print_debug = configuration.debug_output
     # Create a new WampClient object and add a hook to keep the session
     # object up to date in case of network errors.
-    @wamp_client = WampClient::Connection.new(configuraion.wamp.symbolize_keys)
+    @wamp_client = WampClient::Connection.new(configuration.wamp.symbolize_keys)
     @wamp_client.on_join{ |session, _| @session = session }
     open
   end
@@ -36,6 +43,7 @@ class Transport < Shark::Middleware
   # Publish public events over the WAMP socket.
   # Any event that reaches this middleware will be published over the socket.
   def call event, channel, *args, **kwargs
+    puts "Transport published `#{event}` to \"#{channel}\" (from \"#{kwargs[:originator]}\", #{args.size} args, #{kwargs.size} kwargs)." if @print_debug
     @session.publish(channel, args, event: event, originator: kwargs[:originator])
     # This is a pass-through middleware, so proxy the event up.
     @app.call(event, channel, *args, kwargs)
