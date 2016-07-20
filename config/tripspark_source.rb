@@ -1,3 +1,5 @@
+require_relative '../sources/tripspark'
+
 # Configuration for all CityBus source objects
 TripSparkSource.configure do |ts|
   ts.configure_api  = Proc.new do |config|

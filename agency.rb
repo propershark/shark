@@ -11,8 +11,6 @@ require_relative 'objects/vehicle'
 require_relative 'objects/route'
 require_relative 'objects/station'
 require_relative 'object_manager'
-require_relative 'sources/tripspark'
-require_relative 'sources/doublemap'
 require_relative 'storage'
 require_relative 'middleware'
 

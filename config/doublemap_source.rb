@@ -1,3 +1,5 @@
+require_relative '../sources/doublemap'
+
 # Configuration for all DoubleMap source objects
 DoubleMapSource.configure do |doublemap|
   doublemap.agency      = :citybus
