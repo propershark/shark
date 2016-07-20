@@ -29,9 +29,13 @@ class Conductor
     # traveling on, and only continue if that route exists
     route_id = vehicle[:route]
     if route = @storage.find(route_id)
-      # Ensure that the Route has an association to the vehicle, and the vehicle
-      # to the route
-      route.associate(Shark::Vehicle, channel)
+      # Ensure that the Route has an association to the vehicle. If the
+      # association did not already exist, add it, and send a route update
+      # to ensure all clients know the vehicles currently on the route.
+      if !route.has_association_to(Shark::Vehicle, channel)
+        route.associate(Shark::Vehicle, channel)
+        @app.call(:update, route_id, route, { originator: channel })
+      end
       # Publish a vehicle_update event to the route. Since the vehicle caused the
       # event to occur, it should be the originator.
       @app.call(:vehicle_update, route_id, vehicle, { originator: channel })
@@ -58,9 +62,13 @@ class Conductor
     # traveling on, and only continue if that route exists
     route_id = vehicle[:route]
     if route = @storage.find(route_id)
-      # Ensure that the Route has an association to the vehicle, and the vehicle
-      # to the route
-      route.associate(Shark::Vehicle, channel)
+      # Ensure that the Route has an association to the vehicle. If the
+      # association did not already exist, add it, and send a route update
+      # to ensure all clients know the vehicles currently on the route.
+      if !route.has_association_to(Shark::Vehicle, channel)
+        route.associate(Shark::Vehicle, channel)
+        @app.call(:update, route_id, route.to_h, { originator: channel })
+      end
       # Publish a vehicle_update event to the route. Since the vehicle caused the
       # event to occur, it should be the originator.
       @app.call(:vehicle_update, route_id, vehicle, { originator: channel })
