@@ -10,7 +10,7 @@ module DoubleMapSource
         # Ensure that the short name of the route (commonly it's identifier) is set.
         attrs[:short_name]  = route.name.split.first if route.short_name.empty?
         attrs[:stations]    = route.stops.map do |stop_id|
-          @station_key.call(api.stops.get(stop_id))
+          Shark::Station.identifier_for(@station_key.call(api.stops.get(stop_id)))
         end
         [@route_key.call(route), attrs]
       end.to_h

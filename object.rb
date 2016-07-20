@@ -82,9 +82,12 @@ module Shark
 
 
     # Return a Hash representation of this Object containing all attributes
-    # defined on it through `attr_accessor`.
+    # defined on it through `attr_accessor`, as well as the Hash of other
+    # objects currently associated with this Object.
     def to_h
-      self.class.attributes.inject({}){ |h, name| h[name] = instance_variable_get("@#{name}"); h }
+      hash = self.class.attributes.inject({}){ |h, name| h[name] = instance_variable_get("@#{name}"); h }
+      hash[:associated_objects] = associated_objects.map{ |klass, set| [klass, set.to_a] }.to_h
+      hash
     end
   end
 end
