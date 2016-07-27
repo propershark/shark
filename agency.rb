@@ -88,6 +88,8 @@ module Shark
         manager.update
         @scheduler.every(manager.update_frequency){ manager.update }
       end
+
+      @managers.values.map(&:update)
     end
 
     # Proxy an event to the middleware stack. Each middleware entry is
