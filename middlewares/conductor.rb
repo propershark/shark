@@ -1,5 +1,6 @@
-# A Middleware class for sending events about vehicles to stations in advance
-# of their arrival and after their departure
+# A Middleware class for sending related events for each event that passes
+# through it. For example, an `update` event on a Vehicle will cause a
+# `vehicle_update` to go out on the Route that the vehicle is traveling.
 class Conductor < Shark::Middleware
   class << self
     include Shark::Configurable
@@ -24,12 +25,13 @@ class Conductor < Shark::Middleware
   end
 
   def call event, channel, *args, **kwargs
-    # Immediately pass the original event through to the next Middleware
-    @app.call(event, channel, *args, kwargs)
-
     # Instantiate and execute a handler for the event based on its namespace
     namespace, topic = channel.split('.')
     self.instance_exec(channel, args, kwargs, &@@event_handlers[[namespace, event]])
+
+    # Pass through the event (with potentially modified arguments) to the next
+    # middleware
+    @app.call(event, channel, *args, kwargs)
   end
 end
 
