@@ -1,5 +1,39 @@
 # Route event handlers for Conductor
 class Conductor
+  # Create an association on the station identified by `station_id` to the
+  # given route. Additionally, create a back-association on `route`.
+  def re_associate_to_station route, station_id
+    route_id = Shark::Route.identifier_for(route.identifier)
+    if station = @storage.find(station_id)
+      station.associate(Shark::Route, route_id)
+    end
+    route.associate(Shark::Station, station_id)
+  end
+
+  # Remove an association on `route` to the given station
+  def re_dissociate_from_station route, station_id
+    route_id = Shark::Route.identifier_for(route.identifier)
+    if station = @storage.find(station_id)
+      station.dissociate(Shark::Route, route_id)
+    end
+    route.dissociate(Shark::Station, station_id)
+  end
+
+  # Embed useful information about stations into a Route object. `route` should
+  # be the Hash representation of the Route object, and it will be modified in-
+  # place.
+  #
+  # See https://github.com/propershark/shark/issues/5 for discussion.
+  def re_embed_station_objects! route
+    # Each station in the `station` attribute gets embedded as a hash of the
+    # `identifier` and `name` attributes of that station.
+    route[:stations]&.map! do |station_id|
+      station = @storage.find(station_id)
+      { identifier: station_id, name: station&.name }
+    end
+  end
+
+
   # update -> [route] {**defaults}
   #   heartbeat
   # Provides `route` as a hash of new attributes for a Route object. The
@@ -17,20 +51,15 @@ class Conductor
     # To ensure all changes are propogated up and to avoid conflicts, clear all
     # existing associations first.
     route_inst.associated_objects[Shark::Station].each do |station_id|
-      if station = @storage.find(station_id)
-        station.dissociate(Shark::Route, channel)
-      end
-      route_inst.dissociate(Shark::Station, station_id)
+      re_dissociate_from_station(route_inst, station_id)
     end
     # Then recreate the ones that still exist or have been added.
-    route_inst.stations.each do |station_id|
-      if station = @storage.find(station_id)
-        station.associate(Shark::Route, channel)
-      end
-      # Create back-associations as well to allow the associations to be found
-      # instantly rather than iteratively.
-      route_inst.associate(Shark::Station, station_id)
-    end if route_inst.stations
+    route_inst.stations&.each do |station_id|
+      re_associate_to_station(route_inst, station_id)
+    end
+
+    # Embed station information into the route
+    re_embed_station_objects! route
   end
 
 
@@ -46,14 +75,12 @@ class Conductor
     # Find the Shark::Station instances for each station that this route
     # touches, and create an association to this route on those instances.
     route_inst = @storage.find(channel)
-    route_inst.stations.each do |station_id|
-      if station = @storage.find(station_id)
-        station.associate(Shark::Route, channel)
-      end
-      # Create back-associations as well to allow the associations to be found
-      # instantly rather than iteratively.
-      route_inst.associate(Shark::Station, station_id)
-    end if route_inst.stations
+    route_inst.stations&.each do |station_id|
+      re_associate_to_station(route_inst, station_id)
+    end
+
+    # Embed station information into the route
+    re_embed_station_objects! route
   end
 
 
@@ -70,9 +97,7 @@ class Conductor
     # touches, and create an association to this route on those instances.
     route_inst = @storage.find(channel)
     route_inst.associated_object[Shark::Station].each do |station_id|
-      if station = @storage.find(station_id)
-        station.dissociate(Shark::Route, channel)
-      end
+      re_dissociate_from_station(route_inst, station_id)
     end
   end
 
