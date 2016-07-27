@@ -14,18 +14,22 @@ class Conductor
     # events, but this information is not static: a route can potentially
     # change it's stop list while it is active.
     route_inst = @storage.find(channel)
-    # To ensure all changes are propogated up and avoid conflicts, clear
-    # all existing associations first.
+    # To ensure all changes are propogated up and to avoid conflicts, clear all
+    # existing associations first.
     route_inst.associated_objects[Shark::Station].each do |station_id|
       if station = @storage.find(station_id)
         station.dissociate(Shark::Route, channel)
       end
+      route_inst.dissociate(Shark::Station, station_id)
     end
     # Then recreate the ones that still exist or have been added.
     route_inst.stations.each do |station_id|
       if station = @storage.find(station_id)
         station.associate(Shark::Route, channel)
       end
+      # Create back-associations as well to allow the associations to be found
+      # instantly rather than iteratively.
+      route_inst.associate(Shark::Station, station_id)
     end if route_inst.stations
   end
 
@@ -64,7 +68,8 @@ class Conductor
 
     # Find the Shark::Station instances for each station that this route
     # touches, and create an association to this route on those instances.
-    route[:stations].each do |station_id|
+    route_inst = @storage.find(channel)
+    route_inst.associated_object[Shark::Station].each do |station_id|
       if station = @storage.find(station_id)
         station.dissociate(Shark::Route, channel)
       end
