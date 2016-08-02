@@ -24,7 +24,7 @@ class Conductor
   # place.
   #
   # See https://github.com/propershark/shark/issues/5 for discussion.
-  def re_embed_station_objects! route
+  def re_embed_objects! route
     # Each station in the `station` attribute gets embedded as a hash of the
     # `identifier` and `name` attributes of that station.
     route[:stations]&.map! do |station_id|
@@ -59,7 +59,7 @@ class Conductor
     end
 
     # Embed station information into the route
-    re_embed_station_objects! route
+    re_embed_objects! route
   end
 
 
@@ -80,7 +80,7 @@ class Conductor
     end
 
     # Embed station information into the route
-    re_embed_station_objects! route
+    re_embed_objects! route
   end
 
 

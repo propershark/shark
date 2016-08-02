@@ -1,5 +1,35 @@
 # Vehicle event handlers for Conductor
 class Conductor
+  # Embed useful information about stations and routes into a Vehicle object.
+  # `route` should be the Hash representation of the Route object, and it will
+  # be modified in-place.
+  #
+  # See https://github.com/propershark/shark/issues/5 for discussion.
+  def ve_embed_objects! vehicle
+    # The `last_station` and `next_station` attributes get embedded as a hash
+    # of the `identifier` and `name` attributes of that station.
+    vehicle[:last_station] = begin
+      station = @storage.find(vehicle[:last_station])
+      { identifier: vehicle[:last_station], name: station&.name }
+    end
+    vehicle[:next_station] = begin
+      station = @storage.find(vehicle[:next_station])
+      { identifier: vehicle[:last_station], name: station&.name }
+    end
+    # The `route` attribute gets a limited embed as a hash of `identifier`,
+    # `name`, `short_name`, and `color`. Other attributes may be added, but
+    # seem unnecessary as of now.
+    vehicle[:route] = begin
+      route = @storage.find(vehilce[:route])
+      {
+        identifier: vehicle[:route],
+        name:       route&.name,
+        short_name: route&.short_name,
+        color:      route&.color
+      }
+    end
+  end
+
   # update -> [vehicle] {**defaults}
   #   heartbeat
   # Provides `vehicle` as a hash of new attributes for a Vehicle object. The
@@ -40,6 +70,9 @@ class Conductor
       # event to occur, it should be the originator.
       @app.call(:vehicle_update, route_id, vehicle, { originator: channel })
     end
+
+    # Embed station information into the route
+    ve_embed_objects! vehicle
   end
 
 
@@ -73,6 +106,9 @@ class Conductor
       # event to occur, it should be the originator.
       @app.call(:vehicle_update, route_id, vehicle, { originator: channel })
     end
+
+    # Embed station information into the route
+    ve_embed_objects! vehicle
   end
 
 
