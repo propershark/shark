@@ -20,7 +20,7 @@ class Conductor
     # `name`, `short_name`, and `color`. Other attributes may be added, but
     # seem unnecessary as of now.
     vehicle[:route] = begin
-      route = @storage.find(vehilce[:route])
+      route = @storage.find(vehicle[:route])
       {
         identifier: vehicle[:route],
         name:       route&.name,
