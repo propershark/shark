@@ -9,9 +9,21 @@ module Shark
   # is executed before an event reaches the application, here it is executed
   # when an event leaves the application.
   #
-  # Uses of Middleware include publishing over a network, logging, error
-  # handling, or just extending the framework.
+  # Uses of Middleware include publishing over a network, error handling,
+  # creating new events, or simply extending the framework.
   class Middleware
+    # A map of event handlers indexed by namespace-topic pairs. New handlers can
+    # be added through a call to `Conductor.register_handler`. The handler will
+    # be called with the `app`, `channel`, `args`, and `kwargs` arguments.
+    #
+    # Any event that does not have a handler will use the default blank proc as
+    # a handler (i.e., nothing will happen, but no error will occur).
+    @@event_handlers = Hash.new{ |h, k| h[k] = Proc.new{} }
+    def self.register_handler namespace, event, &handler
+      @@event_handlers[[namespace, event]] = handler
+    end
+
+
     # Create a new instance of this middleware, including a reference to the
     # app that is stacked above it.
     def initialize app
@@ -32,7 +44,13 @@ module Shark
 
     # Handle an event, potentially including some arguments
     def call event, channel, *args, **kwargs
-      raise "Middleware classes must override `call`"
+      # Instantiate and execute a handler for the event based on its namespace
+      namespace, topic = channel.split('.')
+      self.instance_exec(channel, args, kwargs, &@@event_handlers[[namespace, event]])
+
+      # Pass through the event (with potentially modified arguments) to the next
+      # middleware
+      @app.call(event, channel, *args, kwargs)
     end
   end
 end
