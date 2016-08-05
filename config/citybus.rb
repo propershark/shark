@@ -1,6 +1,7 @@
 # Include middleware classes and their configurations
-require_relative './transport.rb'
-require_relative './conductor.rb'
+require_relative './transport'
+require_relative './conductor'
+require_relative './object_embed'
 
 # Include configuration for Sources
 require_relative 'doublemap_source'
@@ -45,4 +46,5 @@ Shark::Agency.configure do |agency|
 
   agency.use_middleware Transport
   agency.use_middleware Conductor
+  agency.use_middleware ObjectEmbed
 end
