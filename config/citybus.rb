@@ -45,6 +45,6 @@ Shark::Agency.configure do |agency|
 
 
   agency.use_middleware Transport
-  agency.use_middleware Conductor
   agency.use_middleware ObjectEmbed
+  agency.use_middleware Conductor
 end
