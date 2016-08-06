@@ -89,5 +89,12 @@ module Shark
       hash[:associated_objects] = associated_objects.map{ |klass, set| [klass, set.to_a] }.to_h
       hash
     end
+
+    # Create a JSON representation of this Object by creating the Hash and
+    # calling to_json on that. Since Hash has a `to_json` implementation, this
+    # avoids a lot of unecessary formatting logic.
+    def to_json opts={}
+      to_h.to_json(opts)
+    end
   end
 end
