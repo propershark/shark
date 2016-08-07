@@ -18,9 +18,12 @@ module Shark
     #
     # Any event that does not have a handler will use the default blank proc as
     # a handler (i.e., nothing will happen, but no error will occur).
-    def self.register_handler namespace, event, &handler
+    def self.event_handlers
       @event_handlers ||= Hash.new{ |h, k| h[k] = Proc.new{} }
-      @event_handlers[[namespace, event]] = handler
+    end
+
+    def self.register_handler namespace, event, &handler
+      event_handlers[[namespace, event]] = handler
     end
 
 
@@ -44,9 +47,10 @@ module Shark
 
     # Handle an event, potentially including some arguments
     def call event, channel, *args, **kwargs
-      # Instantiate and execute a handler for the event based on its namespace
+      # Instantiate and execute a handler for the event based on its namespace.
+      # Handlers are executed with the middleware instance as the receiver.
       namespace, topic = channel.split('.')
-      self.instance_exec(channel, args, kwargs, &@event_handlers[[namespace, event]])
+      self.instance_exec(channel, args, kwargs, &self.class.event_handlers[[namespace, event]])
 
       # Pass through the event (with potentially modified arguments) to the next
       # middleware
