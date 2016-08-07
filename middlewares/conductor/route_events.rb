@@ -27,7 +27,7 @@ class Conductor
   def re_embed_objects! route
     # Each station in the `station` attribute gets embedded as a hash of the
     # `identifier` and `name` attributes of that station.
-    route[:stations]&.map! do |station_id|
+    route.stations&.map! do |station_id|
       station = @storage.find(station_id)
       { identifier: station_id, name: station&.name }
     end
@@ -40,22 +40,20 @@ class Conductor
   # attributes given in this hash will always be enough to create a new Route
   # from scratch.
   register_handler 'routes', :update do |channel, args, kwargs|
-    # The first argument of this event is the hash of attributes for the route
-    # this update affects.
+    # The first argument of this event is the route object this update affects
     route = args.first
 
     # Associations on Stations are created/destroyed by activate/deactivate
     # events, but this information is not static: a route can potentially
     # change it's stop list while it is active.
-    route_inst = @storage.find(channel)
     # To ensure all changes are propogated up and to avoid conflicts, clear all
     # existing associations first.
-    route_inst.associated_objects[Shark::Station].each do |station_id|
-      re_dissociate_from_station(route_inst, station_id)
+    route.associated_objects[Shark::Station].each do |station_id|
+      re_dissociate_from_station(route, station_id)
     end
     # Then recreate the ones that still exist or have been added.
-    route_inst.stations&.each do |station_id|
-      re_associate_to_station(route_inst, station_id)
+    route.stations&.each do |station_id|
+      re_associate_to_station(route, station_id)
     end
 
     # Embed station information into the route
@@ -68,15 +66,13 @@ class Conductor
   # Sent when a Route becomes publicly visible. `route` will be an attributes
   # hash equivalent to that in the update event.
   register_handler 'routes', :activate do |channel, args, kwargs|
-    # The first argument of this event is the hash of attributes for the route
-    # this update affects.
+    # The first argument of this event is the route object this update affects
     route = args.first
 
     # Find the Shark::Station instances for each station that this route
     # touches, and create an association to this route on those instances.
-    route_inst = @storage.find(channel)
-    route_inst.stations&.each do |station_id|
-      re_associate_to_station(route_inst, station_id)
+    route.stations&.each do |station_id|
+      re_associate_to_station(route, station_id)
     end
 
     # Embed station information into the route
@@ -89,15 +85,13 @@ class Conductor
   # Sent when a Route stops being publicly visible. `route` will be an
   # attributes hash equivalent to that in the update event.
   register_handler 'routes', :deactivate do |channel, args, kwargs|
-    # The first argument of this event is the hash of attributes for the route
-    # this update affects.
+    # The first argument of this event is the route object this update affects
     route = args.first
 
     # Find the Shark::Station instances for each station that this route
     # touches, and create an association to this route on those instances.
-    route_inst = @storage.find(channel)
-    route_inst.associated_object[Shark::Station].each do |station_id|
-      re_dissociate_from_station(route_inst, station_id)
+    route.associated_object[Shark::Station].each do |station_id|
+      re_dissociate_from_station(route, station_id)
     end
   end
 

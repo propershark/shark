@@ -19,10 +19,10 @@ module Shark
     # this hash will participate in all activities that this manager performs.
     # Objects not in this hash but in `known_objects` will not participate in
     # these activities.
+    attr_accessor :active_objects
     # The agency that this manager belongs to. All events that this manager
     # creates will be pushed out to this agency.
     attr_accessor :agency
-    attr_accessor :active_objects
     # A reference to the storage adapter being used. This is generally a global
     # value, but having a local reference to it simplifies code lines, and
     # allows for overrides if necessary.
@@ -152,14 +152,15 @@ module Shark
       end
       alias_method :identifier_for, :channel_name_for
 
-      # Create an event to be sent out from the agency. The event consists of:
+      # Create an event to be sent out from the agency. The event originating
+      # here consists of:
       # - event_type: the type of event being sent.
       # - channel: the namespace the event should be broadcast in.
       # - args: a single argument, the object the event relates to.
       # - originator: who is responsible for initiating the event.
       def fire event_type, object
         meta = { originator: channel_name_for(object) }
-        agency.call(event_type, channel_name_for(object), object.to_h, meta)
+        agency.call(event_type, channel_name_for(object), object, meta)
       end
   end
 end
