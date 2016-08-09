@@ -12,14 +12,27 @@ module Shark
   # Uses of Middleware include publishing over a network, error handling,
   # creating new events, or simply extending the framework.
   class Middleware
-    # A map of event handlers indexed by namespace-topic pairs. New handlers can
-    # be added through a call to `Conductor.register_handler`. The handler will
-    # be called with the `app`, `channel`, `args`, and `kwargs` arguments.
+    # Get or set the default event handler for this middleware. If `block` is
+    # given, use it as the default event handler and return that proc. If
+    # `block` is not given, simply return the current default proc.
+    def self.default_event_handler &block
+      if block_given?
+        @default_event_handler = block
+      else
+        @default_event_handler ||= Proc.new{}
+      end
+    end
+
+    # A map of event handlers indexed by namespace-topic pairs. New handlers
+    # can be added through a call to `Middleware::register_handler`. The
+    # handler will be called with the `channel`, `args`, and `kwargs`
+    # arguments.
     #
-    # Any event that does not have a handler will use the default blank proc as
-    # a handler (i.e., nothing will happen, but no error will occur).
+    # Any event that does not have a handler will use the proc given by
+    # `default_event_handler`. Unless explicitly set by a subclass, this
+    # will be a blank proc.
     def self.event_handlers
-      @event_handlers ||= Hash.new{ |h, k| h[k] = Proc.new{} }
+      @event_handlers ||= Hash.new{ |h, k| h[k] = default_event_handler }
     end
 
     def self.register_handler namespace, event, &handler
