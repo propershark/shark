@@ -58,16 +58,27 @@ module Shark
       true
     end
 
+    # Return the event handler proc for the given namespace and event type.
+    def handler_for namespace, event_type
+      self.class.event_handlers[[namespace, event_type]]
+    end
+
     # Handle an event, potentially including some arguments
-    def call event, channel, *args, **kwargs
+    def call event
       # Instantiate and execute a handler for the event based on its namespace.
       # Handlers are executed with the middleware instance as the receiver.
-      namespace, topic = channel.split('.')
-      self.instance_exec(channel, args, kwargs, &self.class.event_handlers[[namespace, event]])
+      namespace, topic = event.topic.split('.')
+      self.instance_exec(event, &handler_for(namespace, event.type))
 
       # Pass through the event (with potentially modified arguments) to the next
       # middleware
-      @app.call(event, channel, *args, kwargs)
+      fire(event)
+    end
+
+    # Wrapper for `@app.call(<event>)` to proxy an event up the middleware
+    # stack in a more native way (purely aesthetic).
+    def fire event
+      @app.call(event)
     end
   end
 end

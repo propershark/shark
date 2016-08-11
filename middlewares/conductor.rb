@@ -15,7 +15,7 @@ class Conductor < Shark::Middleware
 
   # Conductor is entirely implemented as event handlers, so no extra
   # processing is necessary here.
-  def call event, channel, *args, **kwargs
+  def call event
     super
   end
 end

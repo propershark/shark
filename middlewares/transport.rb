@@ -44,11 +44,11 @@ class Transport < Shark::Middleware
 
   # Publish public events over the WAMP socket.
   # Any event that reaches this middleware will be published over the session.
-  def call event, channel, *args, **kwargs
-    puts "Transport published `#{event}` to \"#{channel}\" (from \"#{kwargs[:originator]}\", #{args.size} args, #{kwargs.size} kwargs)." if @print_debug
+  def call event
+    puts "Transport published `#{event.type}` to \"#{event.topic}\" (from \"#{event.originator}\", #{event.args.size} args, #{event.kwargs.size} kwargs)." if @print_debug
     # Publish the event across the session
-    @session.publish(channel, args, event: event, originator: kwargs[:originator])
+    @session.publish(event.topic, event.args, { event: event.type, originator: event.originator }.merge(event.kwargs))
     # This is a pass-through middleware, so proxy the event up.
-    @app.call(event, channel, *args, kwargs)
+    fire(event)
   end
 end
