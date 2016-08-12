@@ -57,6 +57,37 @@ module Shark
       object ? object.to_h(nested: nested) : identifier
     end
 
+    # Return the serialized form of the given attribute.
+    # For simple types like String and Numeric, this will do nothing.
+    # For container types like Array and Hash, each element they contain will
+    # be serialized individually.
+    # For Shark::Object instances, they will be serialized as nested embeds,
+    # according to their configuration and the configuration of this Object.
+    def serialize_attribute attribute
+      case attribute
+      # Iteratively serialize container types
+      when Array
+        attribute.map{ |element| serialize_attribute(element) }
+      when Hash
+        attribute.map{ |key, val| [key, serialize_attribute(val)] }.to_h
+      # Serialize Object instances as nested attributes
+      when Shark::Object
+        attribute.to_h(nested: true)
+      # Strings should check if they are identifiers (but not this Object's
+      # identifier). If so, follow the configuration options for embedding.
+      # Otherwise, just pass the string through.
+      when String
+        if attribute.identifier? && attribute != self.identifier
+          serialization_for_identifier(attribute, nested: true)
+        else
+          attribute
+        end
+      # Everything else gets passed through
+      else
+        attribute
+      end
+    end
+
     # Return a Hash representing the serialized version of `associated_objects`
     # for the Object.
     # The hash contents are set by `configuration.embed_associated_objects`.
@@ -102,7 +133,7 @@ module Shark
       attribute_list = nested ? nested_attributes_to_embed : attributes_to_embed
       # Create a hash including all of the requested attributes
       hash = attribute_list.each_with_object({}) do |name, h|
-        h[name] = send(name)
+        h[name] = serialize_attribute(send(name))
       end
       # Only embed associated objects on top level objects, or those which
       # specify it in their configuration.

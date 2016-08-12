@@ -53,11 +53,3 @@ Shark::Object.configure do |config|
   # this can lead to infinite loops with objects with cyclical associations.
   config.embed_nested_associated_objects = false
 end
-
-Shark::Route.configure do |config|
-  config.embed_depth = 3
-end
-
-Shark::Station.configure do |config|
-  config.nested_embedded_attributes = [:name, :description]
-end
