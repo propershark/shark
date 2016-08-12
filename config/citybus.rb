@@ -1,12 +1,13 @@
 # Include middleware classes and their configurations
 require_relative './transport'
 require_relative './conductor'
-require_relative './object_embed'
 
 # Include configuration for Sources
 require_relative 'doublemap_source'
 require_relative 'tripspark_source'
 
+# Include miscellaneous configuration files
+require_relative './serialization'
 
 # General agency configuration
 Shark::Agency.configure do |agency|
@@ -45,6 +46,5 @@ Shark::Agency.configure do |agency|
 
 
   agency.use_middleware Transport
-  agency.use_middleware ObjectEmbed
   agency.use_middleware Conductor
 end

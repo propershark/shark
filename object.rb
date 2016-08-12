@@ -1,10 +1,29 @@
 require 'set'
 
+require_relative 'object_serialization'
+
 module Shark
   # Wrapping class for objects to allow hash-based initialization and updating
   # of attributes.
   class Object
     class << self
+      include Configurable
+
+      def inherited subclass
+        subclass.class_exec do
+          # Automatically inherit configuration from the base Object class for
+          # all subclasses.
+          class << self
+            include Configurable
+            inherit_configuration_from Shark::Object
+          end
+
+          include Configurable
+          inherit_configuration_from self
+        end
+      end
+
+
       # Attributes defined with the `attribute` macro are:
       #   - Assignable and initializable via Hash arguments.
       #   - Included in the Hash representation of the object.
@@ -31,6 +50,12 @@ module Shark
         "#{name.gsub(/^.*::/,'').downcase}s.#{identifier}"
       end
     end
+
+    include Configurable
+    inherit_configuration_from self
+
+    include ObjectSerialization
+
 
     # Objects can maintain lists of objects with which they associate. This is
     # useful for keeping track of a changing set of related objects (as
@@ -78,23 +103,6 @@ module Shark
     # Return the value of the primary attribute on this Object.
     def identifier
       send(self.class.identifying_attribute)
-    end
-
-
-    # Return a Hash representation of this Object containing all attributes
-    # defined on it through `attr_accessor`, as well as the Hash of other
-    # objects currently associated with this Object.
-    def to_h
-      hash = self.class.attributes.inject({}){ |h, name| h[name] = instance_variable_get("@#{name}"); h }
-      hash[:associated_objects] = associated_objects.map{ |klass, set| [klass, set.to_a] }.to_h
-      hash
-    end
-
-    # Create a JSON representation of this Object by creating the Hash and
-    # calling to_json on that. Since Hash has a `to_json` implementation, this
-    # avoids a lot of unecessary formatting logic.
-    def to_json opts={}
-      to_h.to_json(opts)
     end
   end
 end
