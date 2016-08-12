@@ -73,13 +73,13 @@ module Shark
 
 
     # Add the given object as an associate to this object.
-    def associate klass, identifier
-      @associated_objects[klass].add(identifier)
+    def associate klass, ident
+      @associated_objects[klass].add(ident)
     end
 
     # Remove any association with the given object.
-    def dissociate klass, identifier
-      @associated_objects[klass].delete(identifier)
+    def dissociate klass, ident
+      @associated_objects[klass].delete(ident)
     end
 
     # Remove all associations of the given type from this object.
@@ -89,8 +89,8 @@ module Shark
 
     # Return true if this object has an association record with the given
     # object.
-    def has_association_to klass, identifier
-      @associated_objects[klass].include?(identifier)
+    def has_association_to klass, ident
+      @associated_objects[klass].include?(ident)
     end
 
 
@@ -102,7 +102,7 @@ module Shark
 
     # Return the value of the primary attribute on this Object.
     def identifier
-      send(self.class.identifying_attribute)
+      self.class.identifier_for(send(self.class.identifying_attribute))
     end
   end
 end

@@ -24,7 +24,7 @@ module Shark
         configuration.embedded_attributes
       end
       # Always include the object identifier in the list of attributes
-      embedded_attributes | [self.class.identifying_attribute]
+      embedded_attributes | [:identifier]
     end
 
     # Same as `attributes_to_embed`, but return the attributes that should be
@@ -45,7 +45,7 @@ module Shark
         configuration.nested_embedded_attributes
       end
       # Always include the object identifier in the list of attributes
-      embedded_attributes | [self.class.identifying_attribute]
+      embedded_attributes | [:identifier]
     end
 
     # Return the serialization of the Object with the given identifier. If the
@@ -102,7 +102,7 @@ module Shark
       attribute_list = nested ? nested_attributes_to_embed : attributes_to_embed
       # Create a hash including all of the requested attributes
       hash = attribute_list.each_with_object({}) do |name, h|
-        h[name] = instance_variable_get("@#{name}");
+        h[name] = send(name)
       end
       # Only embed associated objects on top level objects, or those which
       # specify it in their configuration.

@@ -3,7 +3,7 @@ class Conductor
   # Create an association on the station identified by `station_id` to the
   # given route. Additionally, create a back-association on `route`.
   def re_associate_to_station route, station_id
-    route_id = Shark::Route.identifier_for(route.identifier)
+    route_id = route.identifier
     if station = @storage.find(station_id)
       station.associate(Shark::Route, route_id)
     end
@@ -12,7 +12,7 @@ class Conductor
 
   # Remove an association on `route` to the given station
   def re_dissociate_from_station route, station_id
-    route_id = Shark::Route.identifier_for(route.identifier)
+    route_id = route.identifier
     if station = @storage.find(station_id)
       station.dissociate(Shark::Route, route_id)
     end
