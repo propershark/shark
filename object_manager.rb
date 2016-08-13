@@ -19,10 +19,10 @@ module Shark
     # this hash will participate in all activities that this manager performs.
     # Objects not in this hash but in `known_objects` will not participate in
     # these activities.
+    attr_accessor :active_objects
     # The agency that this manager belongs to. All events that this manager
     # creates will be pushed out to this agency.
     attr_accessor :agency
-    attr_accessor :active_objects
     # A reference to the storage adapter being used. This is generally a global
     # value, but having a local reference to it simplifies code lines, and
     # allows for overrides if necessary.
@@ -33,10 +33,6 @@ module Shark
     # attribute is simply here to match how frequencies are defined in the
     # configuration.
     attr_accessor :update_frequency
-    # The namespace prefix used to isolate events that this manager publishes.
-    # Will be concatenated with object identifiers to form a unique, fully-
-    # qualified channel name.
-    attr_accessor :namespace
     # An array of Source objects that will be used to update the attributes of
     # each active object.
     attr_accessor :sources
@@ -67,15 +63,14 @@ module Shark
     # Add an object to `active_objects`. If the object is not already in
     # `storage`, add it there as well.
     def activate object
-      id = identifier_for(object)
-      @active_objects << id
-      @storage.create(id, object)
+      @active_objects << object.identifier
+      @storage.create(object.identifier, object)
     end
 
     # Remove an object from `active_objects`, but keep its entry in
     # `storage`.
     def deactivate object
-      @active_objects.delete identifier_for(object)
+      @active_objects.delete object.identifier
     end
 
     # Remove all objects from `active_objects`. Entries in `storage` will be
@@ -87,22 +82,20 @@ module Shark
     # Completely remove an object from this manager. Its entries in both
     # `active_objects` and `storage` will be deleted.
     def remove object
-      pk = pk_for(object)
-      full_identifier = identifier_for(object)
-      @active_objects.delete pk
-      @storage.remove(full_identifier)
+      @active_objects.delete object.identifier
+      @storage.remove(object.identifier)
     end
 
     # Return the object matching the key of the given object in `@storage`, or
     # nil if no match exists.
-    def find key
-      @storage.find("#{@namespace}.#{key}") || nil
+    def find identifier
+      @storage.find(identifier) || nil
     end
 
-    # Return the object matching the key of the given object in the
-    # `known_objects` hash, or create a new instance if no match exists.
-    def find_or_new key
-      find(key) || @klass.new
+    # Return the object matching the key of the given object in `@storage`, or
+    # create a new instance if no match exists.
+    def find_or_new identifier
+      find(identifier) || @klass.new
     end
 
     # Call the given block once for each active object, passing that object as
@@ -126,40 +119,34 @@ module Shark
       end
       # If any new objects were activated in this session, publish an
       # `activate` event
-      (@active_objects - previously_active).each do |key|
-        fire(:activate, @storage.find(key))
+      (@active_objects - previously_active).each do |identifier|
+        fire(:activate, @storage.find(identifier))
       end
       # Do the same for any objects that are no longer active
-      (previously_active - @active_objects).each do |key|
-        fire(:deactivate, @storage.find(key))
+      (previously_active - @active_objects).each do |identifier|
+        fire(:deactivate, @storage.find(identifier))
       end
       # Publish update events for each currently active object
-      @active_objects.each do |key|
-        fire(:update, @storage.find(key))
+      @active_objects.each do |identifier|
+        fire(:update, @storage.find(identifier))
       end
     end
 
     protected
-      # Retrieve the key to be used for indexing objects from the given object.
-      def pk_for object
-        object.identifier
-      end
-
-      # Determine the fully-qualified name of the channel to which events about
-      # the given object should be published.
-      def channel_name_for object
-        "#{@namespace}.#{object.identifier}"
-      end
-      alias_method :identifier_for, :channel_name_for
-
-      # Create an event to be sent out from the agency. The event consists of:
+      # Create an event to be sent out from the agency. The event originating
+      # here consists of:
       # - event_type: the type of event being sent.
       # - channel: the namespace the event should be broadcast in.
       # - args: a single argument, the object the event relates to.
       # - originator: who is responsible for initiating the event.
       def fire event_type, object
-        meta = { originator: channel_name_for(object) }
-        agency.call(event_type, channel_name_for(object), object.to_h, meta)
+        agency.call(Event.new(
+          topic: object.identifier,
+          type: event_type.to_sym,
+          args: [object],
+          kwargs: {},
+          originator: object.identifier
+        ))
       end
   end
 end

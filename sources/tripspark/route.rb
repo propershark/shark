@@ -6,7 +6,7 @@ module TripSparkSource
       # the configuration of this Source.
       @data = api.routes.all.map do |route|
         attrs = @route_attributes.map{ |prop, name| [prop, route.send(name)] }.to_h
-        [@route_key.call(route), attrs]
+        ["routes."+@route_key.call(route), attrs]
       end.to_h
     end
   end

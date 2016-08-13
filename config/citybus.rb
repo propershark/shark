@@ -1,11 +1,14 @@
 # Include middleware classes and their configurations
-require_relative './transport.rb'
-require_relative './conductor.rb'
+require_relative './transport'
+require_relative './conductor'
 
 # Include configuration for Sources
 require_relative 'doublemap_source'
 require_relative 'tripspark_source'
 
+# Include miscellaneous configuration files
+require_relative './serialization'
+require_relative './specific_serialization'
 
 # General agency configuration
 Shark::Agency.configure do |agency|
@@ -13,7 +16,6 @@ Shark::Agency.configure do |agency|
   agency.use_manager :route_manager do |manager|
     manager.object_type       = Shark::Route
     manager.update_frequency  = '4h'
-    manager.namespace         = 'routes'
 
     # Route information comes from DoubleMap and CityBus
     manager.source_from :doublemap
@@ -24,7 +26,6 @@ Shark::Agency.configure do |agency|
   agency.use_manager :station_manager do |manager|
     manager.object_type       = Shark::Station
     manager.update_frequency  = '1d'
-    manager.namespace         = 'stations'
 
     # Station information only comes from DoubleMap, since CityBus does not
     # provide any useful information that can not be found in DoubleMap.
@@ -35,7 +36,6 @@ Shark::Agency.configure do |agency|
   agency.use_manager :vehicle_manager do |manager|
     manager.object_type       = Shark::Vehicle
     manager.update_frequency  = '2s'
-    manager.namespace         = 'vehicles'
 
     # Vehicle information comes from DoubleMap and CityBus
     manager.source_from :doublemap

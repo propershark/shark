@@ -1,3 +1,4 @@
+require 'json'
 require 'yaml'
 
 require 'rufus-scheduler'
@@ -6,6 +7,8 @@ require_relative 'configurable'
 require_relative 'configurable/configuration'
 require_relative 'configurable/agency_configuration'
 require_relative 'core_ext/hash'
+require_relative 'core_ext/string'
+require_relative 'event'
 require_relative 'object'
 require_relative 'objects/vehicle'
 require_relative 'objects/route'
@@ -95,8 +98,8 @@ module Shark
     # Proxy an event to the middleware stack. Each middleware entry is
     # responsible for passing the event to the next entry, so simply proxying
     # to the first entry is enough.
-    def call event, channel, *args, **kwargs
-      @middleware.call(event, channel, *args, kwargs)
+    def call event
+      @middleware.call(event)
     end
   end
 end

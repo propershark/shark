@@ -1,5 +1,6 @@
-require 'yaml'
+require 'json'
 require 'wamp_client'
+require 'yaml'
 
 class Transport < Shark::Middleware
   class << self
@@ -16,6 +17,7 @@ class Transport < Shark::Middleware
   attr_accessor :session
   # The thread that wamp_client will be running in
   attr_accessor :thread
+
 
   def initialize app, *args
     super(app)
@@ -35,17 +37,18 @@ class Transport < Shark::Middleware
   # Return true if the transport is currently connected. Useful for allowing
   # other components to wait until the connection is established, even when
   # it is running in another thread.
-  def open?
+  def ready?
     @wamp_client.is_open? && @session
   end
-  alias_method :ready?, :open?
+  alias_method :open?, :ready?
 
   # Publish public events over the WAMP socket.
-  # Any event that reaches this middleware will be published over the socket.
-  def call event, channel, *args, **kwargs
-    puts "Transport published `#{event}` to \"#{channel}\" (from \"#{kwargs[:originator]}\", #{args.size} args, #{kwargs.size} kwargs)." if @print_debug
-    @session.publish(channel, args, event: event, originator: kwargs[:originator])
+  # Any event that reaches this middleware will be published over the session.
+  def call event
+    puts "Transport published `#{event.type}` to \"#{event.topic}\" (from \"#{event.originator}\", #{event.args.size} args, #{event.kwargs.size} kwargs)." if @print_debug
+    # Publish the event across the session
+    @session.publish(event.topic, event.args, { event: event.type, originator: event.originator }.merge(event.kwargs))
     # This is a pass-through middleware, so proxy the event up.
-    @app.call(event, channel, *args, kwargs)
+    fire(event)
   end
 end

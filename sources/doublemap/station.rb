@@ -10,7 +10,7 @@ module DoubleMapSource
         # stop_code (which is often the primary_attribute of a Station) is set
         # for all objects.
         attrs[:stop_code] = @station_key.call(stop)
-        [@station_key.call(stop), attrs]
+        ["stations."+@station_key.call(stop), attrs]
       end.to_h
     end
   end

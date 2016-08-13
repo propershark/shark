@@ -9,9 +9,37 @@ module Shark
   # is executed before an event reaches the application, here it is executed
   # when an event leaves the application.
   #
-  # Uses of Middleware include publishing over a network, logging, error
-  # handling, or just extending the framework.
+  # Uses of Middleware include publishing over a network, error handling,
+  # creating new events, or simply extending the framework.
   class Middleware
+    # Get or set the default event handler for this middleware. If `block` is
+    # given, use it as the default event handler and return that proc. If
+    # `block` is not given, simply return the current default proc.
+    def self.default_event_handler &block
+      if block_given?
+        @default_event_handler = block
+      else
+        @default_event_handler ||= Proc.new{}
+      end
+    end
+
+    # A map of event handlers indexed by namespace-topic pairs. New handlers
+    # can be added through a call to `Middleware::register_handler`. The
+    # handler will be called with the `channel`, `args`, and `kwargs`
+    # arguments.
+    #
+    # Any event that does not have a handler will use the proc given by
+    # `default_event_handler`. Unless explicitly set by a subclass, this
+    # will be a blank proc.
+    def self.event_handlers
+      @event_handlers ||= Hash.new{ |h, k| h[k] = default_event_handler }
+    end
+
+    def self.register_handler namespace, event, &handler
+      event_handlers[[namespace, event]] = handler
+    end
+
+
     # Create a new instance of this middleware, including a reference to the
     # app that is stacked above it.
     def initialize app
@@ -30,9 +58,27 @@ module Shark
       true
     end
 
+    # Return the event handler proc for the given namespace and event type.
+    def handler_for namespace, event_type
+      self.class.event_handlers[[namespace, event_type]]
+    end
+
     # Handle an event, potentially including some arguments
-    def call event, channel, *args, **kwargs
-      raise "Middleware classes must override `call`"
+    def call event
+      # Instantiate and execute a handler for the event based on its namespace.
+      # Handlers are executed with the middleware instance as the receiver.
+      namespace, topic = event.topic.split('.')
+      self.instance_exec(event, &handler_for(namespace, event.type))
+
+      # Pass through the event (with potentially modified arguments) to the next
+      # middleware
+      fire(event)
+    end
+
+    # Wrapper for `@app.call(<event>)` to proxy an event up the middleware
+    # stack in a more native way (purely aesthetic).
+    def fire event
+      @app.call(event)
     end
   end
 end

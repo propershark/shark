@@ -10,7 +10,7 @@ module TripSparkSource
         station_key = @station_key.call(vehicle.next_stop) rescue nil
         attrs[:route]         = Shark::Route.identifier_for(route_key)
         attrs[:next_station]  = Shark::Station.identifier_for(station_key)
-        [@vehicle_key.call(vehicle), attrs]
+        ["vehicles."+@vehicle_key.call(vehicle), attrs]
       end.to_h
     end
   end

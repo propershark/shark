@@ -9,29 +9,14 @@ class Conductor < Shark::Middleware
   include Shark::Configurable
   inherit_configuration_from self
 
-  # A map of event handlers indexed by namespace-topic pairs. New handlers can
-  # be added through a call to `Conductor.register_handler`. The handler will
-  # be called with the `app`, `channel`, `args`, and `kwargs` arguments.
-  #
-  # Any event that does not have a handler will use the default blank proc as
-  # a handler (i.e., nothing will happen, but no error will occur).
-  @@event_handlers = Hash.new{ |h, k| h[k] = Proc.new{} }
-  def self.register_handler namespace, event, &handler
-    @@event_handlers[[namespace, event]] = handler
-  end
-
   def initialize app, *args
     super(app)
   end
 
-  def call event, channel, *args, **kwargs
-    # Instantiate and execute a handler for the event based on its namespace
-    namespace, topic = channel.split('.')
-    self.instance_exec(channel, args, kwargs, &@@event_handlers[[namespace, event]])
-
-    # Pass through the event (with potentially modified arguments) to the next
-    # middleware
-    @app.call(event, channel, *args, kwargs)
+  # Conductor is entirely implemented as event handlers, so no extra
+  # processing is necessary here.
+  def call event
+    super
   end
 end
 

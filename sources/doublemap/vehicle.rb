@@ -10,7 +10,7 @@ module DoubleMapSource
         station_key = @station_key.call(api.stops.get(vehicle.last_stop)) rescue nil
         attrs[:route]         = Shark::Route.identifier_for(route_key)
         attrs[:last_station]  = Shark::Station.identifier_for(station_key)
-        [@vehicle_key.call(vehicle), attrs]
+        ["vehicles."+@vehicle_key.call(vehicle), attrs]
       end.to_h
     end
   end
