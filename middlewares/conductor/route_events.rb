@@ -19,20 +19,6 @@ class Conductor
     route.dissociate(Shark::Station, station_id)
   end
 
-  # Embed useful information about stations into a Route object. `route` should
-  # be the Hash representation of the Route object, and it will be modified in-
-  # place.
-  #
-  # See https://github.com/propershark/shark/issues/5 for discussion.
-  def re_embed_objects! route
-    # Each station in the `station` attribute gets embedded as a hash of the
-    # `identifier` and `name` attributes of that station.
-    route.stations&.map! do |station_id|
-      station = @storage.find(station_id)
-      { identifier: station_id, name: station&.name }
-    end
-  end
-
 
   # update -> [route] {**defaults}
   #   heartbeat
@@ -55,9 +41,6 @@ class Conductor
     route.stations&.each do |station_id|
       re_associate_to_station(route, station_id)
     end
-
-    # Embed station information into the route
-    re_embed_objects! route
   end
 
 
@@ -74,9 +57,6 @@ class Conductor
     route.stations&.each do |station_id|
       re_associate_to_station(route, station_id)
     end
-
-    # Embed station information into the route
-    re_embed_objects! route
   end
 
 
