@@ -23,7 +23,7 @@ Shark::Object.configure do |config|
   #
   # For example:
   #   config.embed_associated_objects = [Shark::Station, Shark::Vehicle]
-  config.embed_associated_objects = true
+  config.embed_associated_objects = false
 
   # Specify the list of attributes to be included when serializing the object.
   # If set to true, all attributes will be embedded. To limit which attributes
@@ -50,6 +50,6 @@ Shark::Object.configure do |config|
   config.nested_embedded_attributes = true
 
   # Set to true to include `associated_objects` in nested embeds. Note that
-  # this can lead to infinite loops with objects with cyclical associations.
+  # this can lead to infinite loops for objects with cyclical associations.
   config.embed_nested_associated_objects = false
 end
