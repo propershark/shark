@@ -92,8 +92,8 @@ module Shark
       @storage.find(identifier) || nil
     end
 
-    # Return the object matching the key of the given object in the
-    # `known_objects` hash, or create a new instance if no match exists.
+    # Return the object matching the key of the given object in `@storage`, or
+    # create a new instance if no match exists.
     def find_or_new identifier
       find(identifier) || @klass.new
     end
