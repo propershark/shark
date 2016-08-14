@@ -72,14 +72,16 @@ module Shark
     end
 
 
-    # Add the given object as an associate to this object.
+    # Add the given object as an associate to this object. Return `true` if the
+    # association is newly created, or `false` if it already existed.
     def associate klass, ident
-      @associated_objects[klass].add(ident)
+      @associated_objects[klass].add?(ident) != nil
     end
 
-    # Remove any association with the given object.
+    # Remove any association with the given object. Return `true` if the
+    # association was removed by this call, or `false` if it did not exist.
     def dissociate klass, ident
-      @associated_objects[klass].delete(ident)
+      @associated_objects[klass].delete?(ident) != nil
     end
 
     # Remove all associations of the given type from this object.

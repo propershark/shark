@@ -75,10 +75,27 @@ module Shark
       fire(event)
     end
 
+
     # Wrapper for `@app.call(<event>)` to proxy an event up the middleware
     # stack in a more native way (purely aesthetic).
     def fire event
       @app.call(event)
+    end
+
+
+    # Attempt to resolve the given argument to an Object instance, either
+    # directly, or by attempting a lookup on `@storage`.
+    #
+    # If an instance can not be found, return nil.
+    def resolve_object obj
+      case obj
+      when Shark::Object
+        obj
+      when String
+        obj.identifier? ? @storage.find(obj) : nil
+      else
+        nil
+      end
     end
   end
 end

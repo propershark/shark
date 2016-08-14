@@ -76,7 +76,7 @@ module Shark
       # Some Middlewares will use background threads to process work. By
       # sleeping for a short time between checks, those threads can work
       # concurrently instead of each one blocking serially.
-      sleep(0.01) until instance_list.drop_while(&:ready?).empty?
+      sleep(0.1) until instance_list.drop_while(&:ready?).empty?
     end
 
     # Register the managers with the scheduler to update at the interval

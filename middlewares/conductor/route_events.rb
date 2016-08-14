@@ -1,25 +1,5 @@
 # Route event handlers for Conductor
 class Conductor
-  # Create an association on the station identified by `station_id` to the
-  # given route. Additionally, create a back-association on `route`.
-  def re_associate_to_station route, station_id
-    route_id = route.identifier
-    if station = @storage.find(station_id)
-      station.associate(Shark::Route, route_id)
-    end
-    route.associate(Shark::Station, station_id)
-  end
-
-  # Remove an association on `route` to the given station
-  def re_dissociate_from_station route, station_id
-    route_id = route.identifier
-    if station = @storage.find(station_id)
-      station.dissociate(Shark::Route, route_id)
-    end
-    route.dissociate(Shark::Station, station_id)
-  end
-
-
   # update -> [route] {**defaults}
   #   heartbeat
   # Provides `route` as a hash of new attributes for a Route object. The
@@ -34,13 +14,11 @@ class Conductor
     # change it's stop list while it is active.
     # To ensure all changes are propogated up and to avoid conflicts, clear all
     # existing associations first.
-    route.associated_objects[Shark::Station].each do |station_id|
-      re_dissociate_from_station(route, station_id)
+    route.associated_objects[Shark::Station].each do |station|
+      dissociate_mutual(route, station)
     end
     # Then recreate the ones that still exist or have been added.
-    route.stations&.each do |station_id|
-      re_associate_to_station(route, station_id)
-    end
+    route.stations&.each{ |station| associate_mutual(route, station) }
   end
 
 
@@ -54,9 +32,7 @@ class Conductor
 
     # Find the Shark::Station instances for each station that this route
     # touches, and create an association to this route on those instances.
-    route.stations&.each do |station_id|
-      re_associate_to_station(route, station_id)
-    end
+    route.stations&.each{ |station| associate_mutual(route, station) }
   end
 
 
@@ -70,8 +46,8 @@ class Conductor
 
     # Find the Shark::Station instances for each station that this route
     # touches, and create an association to this route on those instances.
-    route.associated_objects[Shark::Station].each do |station_id|
-      re_dissociate_from_station(route, station_id)
+    route.associated_objects[Shark::Station].each do |station|
+      dissociate_mutual(route, station)
     end
   end
 
