@@ -9,10 +9,10 @@ module Shark
     # Return an array of names of attributes that should be included in the
     # serialization of the Object.
     #
-    # This list is determined by `configuration.embedded_attributes`, but will
-    # always include the identifying attribute.
-    def attributes_to_embed
-      embedded_attributes = case configuration.embedded_attributes
+    # This list is determined by `configuration.serialized_attributes`, but
+    # will always include the identifying attribute.
+    def attributes_to_serialize
+      serialized_attributes = case configuration.serialized_attributes
       # `:all` will embed all attributes of the Object
       when :all
         self.class.attributes || []
@@ -21,19 +21,19 @@ module Shark
         []
       # An array value will embed only those attributes
       when Array
-        configuration.embedded_attributes
+        configuration.serialized_attributes
       end
       # Always include the object identifier in the list of attributes
-      embedded_attributes | [:identifier]
+      serialized_attributes | [:identifier]
     end
 
-    # Same as `attributes_to_embed`, but return the attributes that should be
-    # included when the Object is nested within another Object.
+    # Same as `attributes_to_serialize`, but return the attributes that should
+    # be included when the Object is nested within another Object.
     #
-    # The list is determined by `configuration.nested_embedded_attributes`, and
-    # will always include the identifying attribute.
-    def nested_attributes_to_embed
-      embedded_attributes = case configuration.nested_embedded_attributes
+    # The list is determined by `configuration.nested_serialized_attributes`,
+    # and will always include the identifying attribute.
+    def nested_attributes_to_serialize
+      serialized_attributes = case configuration.nested_serialized_attributes
       # `:all` will embed all attributes of the Object
       when :all
         self.class.attributes || []
@@ -42,10 +42,10 @@ module Shark
         []
       # An array value will embed only those attributes
       when Array
-        configuration.nested_embedded_attributes
+        configuration.nested_serialized_attributes
       end
       # Always include the object identifier in the list of attributes
-      embedded_attributes | [:identifier]
+      serialized_attributes | [:identifier]
     end
 
     # Return the serialization of the Object with the given identifier. If the
@@ -57,28 +57,54 @@ module Shark
       object ? object.to_h(nested: nested) : identifier
     end
 
+    # Return true if the given Object attribute should be embedded in the
+    # serialization of the Object, based on the configuration and the
+    # given context.
+    def should_embed_object object_name, nested: false
+      if nested
+        case configuration.nested_embedded_objects
+        when :all
+          true
+        when nil
+          false
+        when Array
+          configuration.nested_embedded_objects.include? object_name
+        end
+      else
+        case configuration.embedded_objects
+        when :all
+          true
+        when nil
+          false
+        when Array
+          configuration.embedded_objects.include? object_name
+        end
+      end
+    end
+
     # Return the serialized form of the given attribute.
     # For simple types like String and Numeric, this will do nothing.
     # For container types like Array and Hash, each element they contain will
     # be serialized individually.
     # For Shark::Object instances, they will be serialized as nested embeds,
     # according to their configuration and the configuration of this Object.
-    def serialize_attribute attribute
+    def serialize_attribute name, attribute, nested: false
       case attribute
       # Iteratively serialize container types
       when Array
-        attribute.map{ |element| serialize_attribute(element) }
+        attribute.map{ |element| serialize_attribute(name, element, nested: nested) }
       when Hash
-        attribute.map{ |key, val| [key, serialize_attribute(val)] }.to_h
-      # Serialize Object instances as nested attributes
-      when Shark::Object
-        attribute.to_h(nested: true)
+        attribute.map{ |key, val| [key, serialize_attribute(name, val, nested: nested)] }.to_h
       # Strings should check if they are identifiers (but not this Object's
       # identifier). If so, follow the configuration options for embedding.
       # Otherwise, just pass the string through.
       when String
         if attribute.identifier? && attribute != self.identifier
-          serialization_for_identifier(attribute, nested: true)
+          if should_embed_object(name, nested: nested)
+            serialization_for_identifier(attribute, nested: true)
+          else
+            attribute
+          end
         else
           attribute
         end
@@ -118,22 +144,13 @@ module Shark
     end
 
 
-    # Return the serialization of an Object as it should appear when nested
-    # within another Object.
-    #
-    # The contents of the serialization are determined by the option
-    # `configuration.nested_embedded_attributes`.
-    def nested_serialization
-      to_h(nested: true)
-    end
-
     # Return a Hash representation (serialization) of this Object.
     def to_h nested: false
       # Determine the set of attributes to include in the serialization
-      attribute_list = nested ? nested_attributes_to_embed : attributes_to_embed
+      attribute_list = nested ? nested_attributes_to_serialize : attributes_to_serialize
       # Create a hash including all of the requested attributes
       hash = attribute_list.each_with_object({}) do |name, h|
-        h[name] = serialize_attribute(send(name))
+        h[name] = serialize_attribute(name, send(name), nested: nested)
       end
       # Only embed associated objects on top level objects, or those which
       # specify it in their configuration.
