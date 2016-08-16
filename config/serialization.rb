@@ -26,28 +26,30 @@ Shark::Object.configure do |config|
   config.embed_associated_objects = false
 
   # Specify the list of attributes to be included when serializing the object.
-  # If set to true, all attributes will be embedded. To limit which attributes
-  # are included, use an array of attribute names.
-  # Set to false to not include any attributes in the serialization.
+  # If set to `:all`, all attributes will be embedded. To limit which
+  # attributes are included, use an array of attribute names.
+  # Set to `nil` to not include any attributes in the serialization.
   #
   # The identifier for an object will always be included, regardless of the
   # value for this option.
   #
   # For example:
   #   config.embedded_attributes = [:name, :latitude, :longitude]
-  config.embedded_attributes = true
+  #   config.embedded_attributes = nil
+  config.embedded_attributes = :all
 
   # Specify the list of attributes to be included when serializing an object
   # that is nested inside of another (`last_station` on Vehicle, for example).
-  # Options work similarly to `embedded_attributes`. Setting to true will embed
-  # all attributes, while specifying an array of attribute names will only
-  # include those attributes.
-  # Set to false to not include any attributes in the serialization. In this
+  # Options work similarly to `embedded_attributes`. Setting to `:all` will
+  # embed all attributes, while specifying an array of attribute names will
+  # only include those attributes.
+  # Set to `nil` to not include any attributes in the serialization. In this
   # case, nested objects will be left as just their identifying string.
   #
   # For example:
   #   config.nested_embedded_attributes = [:name, :latitude, :longitude]
-  config.nested_embedded_attributes = true
+  #   config.nested_embedded_attributes = nil
+  config.nested_embedded_attributes = :all
 
   # Set to true to include `associated_objects` in nested embeds. Note that
   # this can lead to infinite loops for objects with cyclical associations.

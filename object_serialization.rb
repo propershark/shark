@@ -13,11 +13,11 @@ module Shark
     # always include the identifying attribute.
     def attributes_to_embed
       embedded_attributes = case configuration.embedded_attributes
-      # A True value will embed all attributes
-      when TrueClass
-        self.class.attributes
+      # `:all` will embed all attributes of the Object
+      when :all
+        self.class.attributes || []
       # A false value will embed no attributes
-      when FalseClass
+      when nil
         []
       # An array value will embed only those attributes
       when Array
@@ -34,11 +34,11 @@ module Shark
     # will always include the identifying attribute.
     def nested_attributes_to_embed
       embedded_attributes = case configuration.nested_embedded_attributes
-      # A True value will embed all attributes
-      when TrueClass
-        self.class.attributes
+      # `:all` will embed all attributes of the Object
+      when :all
+        self.class.attributes || []
       # A false value will embed no attributes
-      when FalseClass
+      when nil
         []
       # An array value will embed only those attributes
       when Array
