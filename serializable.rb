@@ -1,5 +1,5 @@
 module Shark
-  module ObjectSerialization
+  module Serializable
     # Because object associations are stored as identifiers, embedding them
     # requires looking up their actual value in the storage adapter.
     def lookup_object identifier

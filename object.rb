@@ -1,6 +1,6 @@
 require 'set'
 
-require_relative 'object_serialization'
+require_relative 'serializable'
 
 module Shark
   # Wrapping class for objects to allow hash-based initialization and updating
@@ -54,7 +54,7 @@ module Shark
     include Configurable
     inherit_configuration_from self
 
-    include ObjectSerialization
+    include Serializable
 
 
     # Objects can maintain lists of objects with which they associate. This is
