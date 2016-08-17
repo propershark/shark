@@ -31,9 +31,6 @@ module Shark
 
     # The scheduler used to schedule events (e.g., updates) for this Agency
     attr_accessor :scheduler
-    # The Transport object through which all communications that this Agency
-    # makes will take place
-    attr_accessor :transport
     # The ObjectManager instances for the services provided by this Agency
     attr_accessor :managers
     # The first Middleware instance in the stack of middlewares that are
@@ -51,11 +48,6 @@ module Shark
     # in the background (via the scheduler)
     def run
       schedule_managers
-    end
-
-    # Initialize the Transport layer and run it in a background thread.
-    def create_transport
-      sleep(0.01) until @transport.is_open?
     end
 
     # Initialize all of the object managers defined by the configuration
