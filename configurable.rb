@@ -9,18 +9,28 @@ module Shark
 
     # Return the current configuration object
     def configuration
-      @configuration ||= configuration_type.new
+      @configuration ||= configuration_type.new(schema: configuration_schema)
     end
 
     # Yield the configuration object so it can be modified through a block.
-    def configure
-      yield configuration
-      configuration
+    # Unless `validate` is explicitly set to false, the configuration will be
+    # validated after the block has returned.
+    def configure validate: true, &block
+      configuration.tap(&block)
+      configuration.__validate! if validate
     end
 
     # Return the type to instantiate for the configuration object
     def configuration_type
       Configuration
+    end
+
+    # Configure the schema (properties, expectations, etc.) of the
+    # configuration. If no block is given, simply return the current schema.
+    def configuration_schema &block
+      @schema ||= Schema.new
+      @schema.instance_eval(&block) if block_given?
+      @schema
     end
 
 
