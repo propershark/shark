@@ -10,6 +10,10 @@ module Shark
     end
     include Configurable
     inherit_configuration_from self
+    configuration_schema do
+      required :object_type
+      required :update_frequency
+    end
 
 
     # A human name for this manager. Not used internally, but useful for
