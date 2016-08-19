@@ -13,6 +13,11 @@ module Shark
     configuration_schema do
       required :object_type
       required :update_frequency
+
+      # ObjectManagers must gather data from at least one source. This
+      # requirement will be met as long as the configuration includes
+      # at least one `sources_from` statement.
+      required :sources
     end
 
 

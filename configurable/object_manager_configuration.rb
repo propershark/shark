@@ -5,6 +5,7 @@ module Shark
     # If `config` is given (as a Hash of options), it will be applied on top of
     # the class configuration for that Source.
     def sources; @sources ||= []; end
+    def sources= other; @sources = other; end
     def source_from name, config={}
       sources << [name, config]
     end
