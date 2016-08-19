@@ -18,7 +18,7 @@ class Conductor
       dissociate_mutual(route, station)
     end
     # Then recreate the ones that still exist or have been added.
-    route.stations&.each{ |station| associate_mutual(route, station) }
+    route.itinerary&.each{ |station| associate_mutual(route, station) }
   end
 
 
@@ -32,7 +32,7 @@ class Conductor
 
     # Find the Shark::Station instances for each station that this route
     # touches, and create an association to this route on those instances.
-    route.stations&.each{ |station| associate_mutual(route, station) }
+    route.itinerary&.each{ |station| associate_mutual(route, station) }
   end
 
 

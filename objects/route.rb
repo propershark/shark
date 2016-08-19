@@ -19,7 +19,7 @@ module Shark
     # NOTE: Only the identifier for each Station will be stored. If the rest of
     # their information is needed, a lookup must be performed on the storage
     # adapter.
-    attribute :stations
+    attribute :itinerary
 
     # While routes can be uniquely identified by their code, the code is not
     # platform agnostic and may vary across different information providers.

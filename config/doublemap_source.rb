@@ -18,7 +18,7 @@ DoubleMapSource.configure do |doublemap|
     description:  :description,
     color:        :color,
     path:         :path,
-    stations:     :stops
+    itinerary:    :stops
   }
 
   doublemap.station_attributes = {
