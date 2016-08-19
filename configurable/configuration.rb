@@ -26,7 +26,9 @@ module Shark
     # `context` is the object on which the configuration is being applied, and
     # will be used by value aliases of properties to resolve values based on
     # that object.
-    def __validate! context
+    # By default, if the configuration does not meet the schema's requirements,
+    # a ConfigurationError will be raised.
+    def __validate! context, suppress_errors: false
       @__schema.properties.each do |property|
         # The instance variable with the property's name will only be defined
         # if it was given a value in the configuration, so
@@ -34,8 +36,15 @@ module Shark
         # given.
         property_was_given = instance_variable_defined?("@#{property.name}")
         # If the property is required but was not given, then the configuration
-        # does not meet the schema's requirements, so return false.
-        return false if property.required? && !property_was_given
+        # does not meet the schema's requirements, so raise an error, or return
+        # false if errors should be suppressed.
+        if property.required? && !property_was_given
+          # Return early if the error should be suppressed.
+          return false if suppress_errors
+          # Otherwise, raise a ConfigurationError, indicating which property
+          # caused the failure.
+          raise ConfigurationError, "`#{property.name}` was not given in the configuration of `#{context}`."
+        end
         # Fetch the value of the property that was given in the configuration.
         # If the property was not given, use the property's default value.
         given_value = property_was_given ? send(property.name) : property.default
