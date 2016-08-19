@@ -1,5 +1,3 @@
-require 'pp'
-
 module Shark
   module Configurable
     def self.included(base)
