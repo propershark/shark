@@ -6,76 +6,27 @@ module Shark
       Storage.adapter.find(identifier)
     end
 
-    # Interpret the current configuration for this Object and return a
-    # normalized version, with all options converted to their actual meaning
-    # (i.e., convert `nil` to a blank array for `embedded_objects`, etc.).
-    def normalized_configuration
-      # To avoid regenerating the same normalization, return the previously-
-      # generated normalization. Otherwise, perform the normalization.
-      return @normalized_configuration if @last_normalized_configuration == configuration
-
-      # Remember which configuration is being normalized for next time
-      @last_normalized_configuration = configuration
-      # Duplicate the configuration and apply changes to the duplicate
-      @normalized_configuration = configuration.dup.tap do |config|
-        config.serialized_attributes = begin
-          case config.serialized_attributes
-            # `:all` will include all attributes of the Object
-            when :all   then self.class.attributes || []
-            # A nil value will include no attributes
-            when nil    then []
-            # An array value will include only those attributes
-            when Array  then config.serialized_attributes
-          # Always include the object identifier in the list of attributes
-          end | [:identifier]
-        end
-        config.embedded_objects = begin
-          case config.embedded_objects
-          # `:all` will embed all objects
-          when :all     then self.class.attributes || []
-          # A nil value will never embed objects
-          when nil      then []
-          # An array value will embed only those objects
-          when Array    then config.embedded_objects
-          end
-        end
-        config.embed_associated_objects = begin
-          case config.embed_associated_objects
-          when true   then self.associated_objects.keys
-          when false  then []
-          when Array  then config.embed_associated_objects
-          end
-        end
-        config.nested_embedded_objects = begin
-          case config.nested_embedded_objects
-          # `:all` will embed all objects
-          when :all   then self.class.attributes || []
-          # A nil value will never embed objects
-          when nil    then []
-          # An array value will embed only those objects
-          when Array  then config.nested_embedded_objects
-          end
-        end
-        config.nested_serialized_attributes = begin
-          case config.nested_serialized_attributes
-            # `:all` will include all attributes of the Object
-            when :all   then self.class.attributes || []
-            # A nil value will include no attributes
-            when nil    then []
-            # An array value will include only those attributes
-            when Array  then config.nested_serialized_attributes
-          # Always include the object identifier in the list of attributes
-          end | [:identifier]
-        end
-        config.embed_nested_associated_objects = begin
-          case config.embed_nested_associated_objects
-          when true   then self.associated_objects.keys
-          when false  then []
-          when Array  then config.embed_nested_associated_objects
-          end
+    # Interpret the current serialization configuration for this Object,
+    # ensuring that all values have their required properties (e.g.,
+    # `serialized_attributes` must include `identifier`).
+    def normalize_configuration!
+      configuration.serialized_attributes         |= [:identifier]
+      configuration.nested_serialized_attributes  |= [:identifier]
+      configuration.embed_associated_objects = begin
+        case configuration.embed_associated_objects
+        when true   then self.associated_objects.keys
+        when false  then []
+        when Array  then configuration.embed_associated_objects
         end
       end
-      @normalized_configuration
+      configuration.embed_nested_associated_objects = begin
+        case configuration.embed_nested_associated_objects
+        when true   then self.associated_objects.keys
+        when false  then []
+        when Array  then configuration.embed_nested_associated_objects
+        end
+      end
+      configuration
     end
 
     # Return the serialization of the Object with the given identifier. If the
@@ -92,9 +43,9 @@ module Shark
     # given context.
     def should_embed_object object_name, nested: false
       if nested
-        normalized_configuration.nested_embedded_objects.include?(object_name)
+        configuration.nested_embedded_objects.include?(object_name)
       else
-        normalized_configuration.embedded_objects.include?(object_name)
+        configuration.embedded_objects.include?(object_name)
       end
     end
 
@@ -137,7 +88,7 @@ module Shark
     # `associated_objects` hash.
     def serialized_associated_objects
       associated_objects.map do |klass, set|
-        if normalized_configuration.embed_associated_objects.include?(klass)
+        if configuration.embed_associated_objects.include?(klass)
           [klass, set.map{ |ident| serialization_for_identifier(ident, nested: true) }]
         else
           [klass, set.to_a]
@@ -148,11 +99,12 @@ module Shark
 
     # Return a Hash representation (serialization) of this Object.
     def to_h nested: false
+      normalize_configuration!
       # Determine the set of attributes to include in the serialization
       attribute_list = if nested
-        normalized_configuration.nested_serialized_attributes
+        configuration.nested_serialized_attributes
       else
-        normalized_configuration.serialized_attributes
+        configuration.serialized_attributes
       end
       # Create a hash including all of the requested attributes
       hash = attribute_list.each_with_object({}) do |name, h|
