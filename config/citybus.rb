@@ -8,7 +8,6 @@ require_relative 'tripspark_source'
 
 # Include miscellaneous configuration files
 require_relative './serialization'
-require_relative './specific_serialization'
 
 # General agency configuration
 Shark::Agency.configure do |agency|

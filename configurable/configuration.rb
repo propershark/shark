@@ -23,12 +23,16 @@ module Shark
     # Iterate the set of properties that are defined in this configuration's
     # schema, resolving any value aliases and ensuring this configuration
     # meets the schema's requirements.
-    def __validate!
+    # `context` is the object on which the configuration is being applied, and
+    # will be used by value aliases of properties to resolve values based on
+    # that object.
+    def __validate! context
       @__schema.properties.each do |property|
-        # The accessor method with the property's name will only be defined if
-        # it was given a value, so `respond_to?` can be used to determine
-        # whether it was given.
-        property_was_given = respond_to?(property.name)
+        # The instance variable with the property's name will only be defined
+        # if it was given a value in the configuration, so
+        # `instance_variable_defined?` can be used to determine whether it was
+        # given.
+        property_was_given = instance_variable_defined?("@#{property.name}")
         # If the property is required but was not given, then the configuration
         # does not meet the schema's requirements, so return false.
         return false if property.required? && !property_was_given
@@ -36,7 +40,7 @@ module Shark
         # If the property was not given, use the property's default value.
         given_value = property_was_given ? send(property.name) : property.default
         # Assign the resolved value as the value in the configuration.
-        send("#{property.name}=", property.transform_value(given_value))
+        send("#{property.name}=", property.transform_value(given_value, context: context))
       end
       # If the requirements of all of the properties were met, then the
       # configuration is valid. Following convention, return self.

@@ -25,23 +25,30 @@ module Shark
         @name = name
         @default = default
         @required = required
+        @value_aliases = Hash.new
       end
 
       # Define one or more value aliases. `aliases` is the possible values
       # given in the configuration, which will be transformed to `real_value`
       # when the configuration is validated.
       def value_alias *aliases, real_value:
-        @value_aliases ||= Hash.new
         aliases.each do |name|
-          @value_aliases[name] = real_value
+          value_aliases[name] = real_value
         end
       end
 
       # Return the real value of the given value, as determined by any entries
       # in the `value_aliases` hash. If no alias is given, return the original
       # value.
-      def transform_value value
-        @value_aliases[value] || value
+      # `context` is the object on which the configuration is being applied,
+      # and will be used as the receiver for any proc-like values.
+      def transform_value value, context:
+        # Resolve the real value in case of aliases
+        value = value_aliases[value] || value
+        # Resolve callable values to get the actual value
+        value = context.instance_exec(&value) if value.respond_to?(:call)
+        # Return the actual value
+        value
       end
     end
   end

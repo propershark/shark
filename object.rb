@@ -27,9 +27,9 @@ module Shark
       # Attributes defined with the `attribute` macro are:
       #   - Assignable and initializable via Hash arguments.
       #   - Included in the Hash representation of the object.
-      attr_accessor :attributes
+      def attributes; @attributes ||= []; end
       def attribute *args
-        (@attributes ||= []).concat(args)
+        attributes.concat(args)
         attr_accessor(*args)
       end
 
@@ -53,6 +53,29 @@ module Shark
 
     include Configurable
     inherit_configuration_from self
+    configuration_schema do
+      optional :embed_has_many_associations, default: true
+
+      optional :serialized_attributes, default: :all do
+        value_alias :all, real_value: ->{ attributes }
+        value_alias nil,  real_value: []
+      end
+      optional :embedded_objects, default: nil do
+        value_alias :all, real_value: ->{ attributes }
+        value_alias nil,  real_value: []
+      end
+      optional :embed_associated_objects, default: false
+
+      optional :nested_serialized_attributes, default: :all do
+        value_alias :all, real_value: ->{ attributes }
+        value_alias nil,  real_value: []
+      end
+      optional :nested_embedded_objects, default: nil do
+        value_alias :all, real_value: ->{ attributes }
+        value_alias nil,  real_value: []
+      end
+      optional :nested_embed_associated_objects,  default: false
+    end
 
     include Serializable
 
