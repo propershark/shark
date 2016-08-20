@@ -6,7 +6,7 @@ module Shark
 
     # Return the current configuration object
     def configuration
-      @configuration ||= configuration_type.new(schema: configuration_schema)
+      @configuration ||= configuration_type.new
     end
     attr_writer :configuration
 
@@ -21,15 +21,6 @@ module Shark
     # Return the type to instantiate for the configuration object
     def configuration_type
       Configuration
-    end
-
-
-    # Configure the schema (properties, expectations, etc.) of the
-    # configuration. If no block is given, simply return the current schema.
-    def configuration_schema &block
-      @schema ||= Schema.new
-      @schema.instance_eval(&block) if block_given?
-      @schema
     end
 
 

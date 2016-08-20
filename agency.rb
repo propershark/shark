@@ -3,6 +3,7 @@ require 'yaml'
 
 require 'rufus-scheduler'
 
+require_relative 'schemable'
 require_relative 'configurable'
 require_relative 'configurable/configuration'
 require_relative 'configurable/agency_configuration'

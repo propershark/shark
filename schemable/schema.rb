@@ -1,7 +1,5 @@
-require_relative 'property'
-
 module Shark
-  module Configurable
+  module Schemable
     # A simple Schema DSL for configuring configurations.
     #
     # It includes methods for specifying optional and required properties,
@@ -10,8 +8,8 @@ module Shark
       # The set of `Property`s that have been defined for the context.
       attr_accessor :properties
 
-      # Create a new DSL instance, encapsulating a set of properties and
-      # expectations for a Configuration.
+      # Create a new Schema instance, encapsulating a set of properties and
+      # expectations for an Object.
       def initialize
         @properties = []
       end
@@ -20,8 +18,8 @@ module Shark
       # property, and `required` sets whether the property is required to be
       # present in the context. If given, `&block` will be instance-evaluated
       # on the new Property, such that any other parameters can be applied.
-      def property name, default: nil, required: false, &block
-        new_property = Property.new(name, default: default, required: required)
+      def property name, type: BasicObject, default: nil, required: false, &block
+        new_property = Property.new(name, type: type, default: default, required: required)
         new_property.instance_eval(&block) if block_given?
         properties << new_property
       end

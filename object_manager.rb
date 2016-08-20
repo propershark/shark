@@ -10,7 +10,7 @@ module Shark
     end
     include Configurable
     inherit_configuration_from self
-    configuration_schema do
+    configuration.schema do
       required :object_type
       required :update_frequency
 

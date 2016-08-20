@@ -1,5 +1,5 @@
 module Shark
-  module Configurable
+  module Schemable
     # A representation of a single property in a Configuration.
     #
     # Properties can be either required or optional, provide default values
@@ -9,6 +9,8 @@ module Shark
     class Property
       # The name of this property, given as a symbol
       attr_accessor :name
+      # The expected type of this property
+      attr_accessor :type
       # The default value that this property will take on. If not set, this
       # will default to nil.
       attr_accessor :default
@@ -21,11 +23,12 @@ module Shark
       attr_accessor :value_aliases
 
       # Create a new property with the given name and default value.
-      def initialize name, default: nil, required: false
-        @name = name
-        @default = default
-        @required = required
-        @value_aliases = Hash.new
+      def initialize name, type: BasicObject, default: nil, required: false
+        @name           = name
+        @type           = type
+        @default        = default
+        @required       = required
+        @value_aliases  = Hash.new
       end
 
       # Define one or more value aliases. `aliases` is the possible values
@@ -45,7 +48,7 @@ module Shark
       def transform_value value, context:
         # Resolve the real value in case of aliases
         value = value_aliases[value] || value
-        # Resolve callable values to get the actual value
+        # Resolve callable values to get the actual value based on the context.
         value = context.instance_exec(&value) if value.respond_to?(:call)
         # Return the actual value
         value

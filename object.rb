@@ -24,22 +24,6 @@ module Shark
       end
 
 
-      # Attributes defined with the `attribute` macro are:
-      #   - Assignable and initializable via Hash arguments.
-      #   - Included in the Hash representation of the object.
-      def attributes; @attributes ||= []; end
-      def attribute *args
-        attributes.concat(args)
-        attr_accessor(*args)
-      end
-
-      # The primary attribute of an Object is the attribute that can be used to
-      # uniquely identify the object.
-      attr_accessor :identifying_attribute
-      def primary_attribute name
-        @identifying_attribute = name
-      end
-
       # Return the universally-unique identifier that an object of this type
       # would have if it had the given local identifier. If this method is not
       # overridden by an Object type, the default will be the type name in a
@@ -50,10 +34,11 @@ module Shark
         "#{name.gsub(/^.*::/,'').downcase}s.#{identifier}"
       end
     end
+    extend Schemable
 
     include Configurable
     inherit_configuration_from self
-    configuration_schema do
+    configuration.schema do
       optional :embed_has_many_associations, default: true
 
       optional :serialized_attributes, default: :all do

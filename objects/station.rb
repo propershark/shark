@@ -1,18 +1,18 @@
 module Shark
   class Station < Object
     # [Integer] The identifying code for this station
-    attribute :code
+    attribute :code,            type: Integer
     # [String] The (often) humanized name for this station
-    attribute :name
+    attribute :name,            type: String
     # [String] The name of this route used on maps and signs to quickly
     # identify it
-    attribute :stop_code
+    attribute :stop_code,       type: String
     # [String] The quick summary of what/where this station services
-    attribute :description
+    attribute :description,     type: String
     # [Float] The latitudinal position of this station
-    attribute :latitude
+    attribute :latitude,        type: Float
     # [Float] The longitudinal position of this station
-    attribute :longitude
+    attribute :longitude,       type: Float
 
     # While stations can be uniquely identified by their code, the code is not
     # platform agnostic and may vary across different information providers.

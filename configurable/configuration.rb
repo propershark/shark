@@ -1,11 +1,11 @@
-require_relative 'schema'
-
 module Shark
   class Configuration
+    include Schemable
+
     # Initialize a new configuration, optionally providing a schema to be
     # validated against.
     def initialize schema: nil
-      @__schema = schema || ::Shark::Configurable::Schema.new
+      self.schema = schema
     end
 
     # For any property that gets defined on this configuration object, add it
@@ -29,7 +29,7 @@ module Shark
     # By default, if the configuration does not meet the schema's requirements,
     # a ConfigurationError will be raised.
     def __validate! context, suppress_errors: false
-      @__schema.properties.each do |property|
+      self.schema.properties.each do |property|
         # The instance variable with the property's name will only be defined
         # if it was given a value in the configuration, so
         # `instance_variable_defined?` can be used to determine whether it was
