@@ -33,6 +33,42 @@ module Shark
       def required name, default: nil, &block
         property(name, default: default, required: true, &block)
       end
+
+
+      # Determine whether the given object meets the expectations of this
+      # schema by validating each property that has been defined.
+      def validate object
+        properties.each do |prop|
+          # True if the property is available on the object
+          prop_exists     = object.respond_to?(prop.name)
+          # True if the property has been given a value on the object
+          prop_is_defined = object.instance_variable_defined?("@#{prop.name}")
+          # Required properties must both exist and be defined
+          if prop.required?
+            return false unless prop_exists and prop_is_defined
+          end
+        end
+        # If the requirements of all of the properties were met, then the
+        # configuration is valid.
+        self
+      end
+
+
+      # Perform any transformations that properties of this schema define. This
+      # method assumes that the given object has already been validated against
+      # this schema.
+      def transform object
+        properties.each do |prop|
+          # Fetch the current value of the property from the object.
+          # If it was not defined, assume the default value for the property.
+          prop_is_defined = object.instance_variable_defined?("@#{prop.name}")
+          given_value = prop_is_defined ? object.send(prop.name) : prop.default
+          # Transform the value based on the property's definition
+          transformed_value = prop.transform_value(given_value, context: object)
+          object.send("#{prop.name}=", transformed_value)
+        end
+        self
+      end
     end
   end
 end
