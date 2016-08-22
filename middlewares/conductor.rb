@@ -12,7 +12,7 @@ class Conductor < Shark::Middleware
   inherit_configuration_from self
 
   def initialize app, *args
-    super(app)
+    super
     @objects_with_changed_associations = Set.new
   end
 

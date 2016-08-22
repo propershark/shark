@@ -42,7 +42,7 @@ module Shark
 
     # Create a new instance of this middleware, including a reference to the
     # app that is stacked above it.
-    def initialize app
+    def initialize app, *args
       # If this is the top middleware (i.e., there are no middlewares stacked
       # above this one), `@app` will be a blank Proc since it responds to
       # `.call` and doesn't error with the wrong number of arguments.

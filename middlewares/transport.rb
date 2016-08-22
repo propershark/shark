@@ -20,7 +20,7 @@ class Transport < Shark::Middleware
 
 
   def initialize app, *args
-    super(app)
+    super
     @print_debug = configuration.debug_output
     # Create a new WampClient object and add a hook to keep the session
     # object up to date in case of network errors.
