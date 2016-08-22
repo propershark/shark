@@ -29,8 +29,8 @@ DoubleMapSource.configure do |doublemap|
   }
 
   doublemap.vehicle_attributes = {
-    name:   :name,
-    lat:    :lat,
-    lon:    :lon
+    name:         :name,
+    latitude:     :lat,
+    longitude:    :lon
   }
 end
