@@ -1,6 +1,7 @@
 # Include middleware classes and their configurations
 require_relative './transport'
 require_relative './conductor'
+require_relative './validator'
 
 # Include configuration for Sources
 require_relative 'doublemap_source'
@@ -44,4 +45,5 @@ Shark::Agency.configure do |agency|
 
   agency.use_middleware Transport
   agency.use_middleware Conductor
+  agency.use_middleware Validator
 end

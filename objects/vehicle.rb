@@ -15,7 +15,7 @@ module Shark
     attribute :onboard,         type: Integer,  nilable: true
     # [Float] The fullness of the vehicle expressed as a percentage in the
     # range [0-1]
-    attribute :saturation,      type: Float,    nilable: true
+    attribute :saturation,      type: Numeric,  nilable: true
     # [String] The last stop that this vehicle departed from
     # NOTE: Only the identifier will be stored. If more information is needed,
     # a lookup must be performed on the storage adapter.
