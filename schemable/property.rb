@@ -14,20 +14,23 @@ module Shark
       # The default value that this property will take on. If not set, this
       # will default to nil.
       attr_accessor :default
-      # Whether this property is required to be explicitly written in a
-      # configuration.
+      # Whether this property is required to be explicitly set on an object.
       attr_accessor :required
       alias_method :required?, :required
+      # Whether this property can be set to nil.
+      attr_accessor :nilable
+      alias_method :nilable?, :nilable
       # The set of value aliases that this property understands and can
       # transform.
       attr_accessor :value_aliases
 
       # Create a new property with the given name and default value.
-      def initialize name, type: BasicObject, default: nil, required: false
+      def initialize name, type: BasicObject, default: nil, required: false, nilable: false
         @name           = name
         @type           = type
         @default        = default
         @required       = required
+        @nilable        = nilable
         @value_aliases  = Hash.new
       end
 

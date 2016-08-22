@@ -1,14 +1,14 @@
 module Shark
   class Station < Object
     # [Integer] The identifying code for this station
-    attribute :code,            type: Integer
+    attribute :code,            type: Integer,  nilable: true
     # [String] The (often) humanized name for this station
     attribute :name,            type: String
     # [String] The name of this route used on maps and signs to quickly
     # identify it
     attribute :stop_code,       type: String
     # [String] The quick summary of what/where this station services
-    attribute :description,     type: String
+    attribute :description,     type: String,   nilable: true
     # [Float] The latitudinal position of this station
     attribute :latitude,        type: Float
     # [Float] The longitudinal position of this station
