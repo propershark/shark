@@ -18,5 +18,21 @@ module Shark
       @kwargs     = kwargs
       @originator = originator
     end
+
+    # Create a Hash representation of this event, attempting to convert all
+    # `args` and `kwargs` to hash representations as well.
+    def to_h
+      {
+        topic:      topic,
+        type:       type,
+        args:       args.map{ |arg| arg.respond_to?(:to_h) ? arg.to_h(nested: false) : arg },
+        kwargs:     Hash[kwargs.map{|k, v| [k, v.respond_to?(:to_h) ? v.to_h(nested: false) : v] }],
+        originator: originator
+      }
+    end
+
+    def to_json
+      to_h.to_json
+    end
   end
 end
