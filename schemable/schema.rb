@@ -49,10 +49,10 @@ module Shark
 
       # Determine whether the given object meets the expectations of this
       # schema by validating each property that has been defined.
-      def validate object, transform: true
+      def validate object, alias_context: nil, transform: true
         # Transform the object to resolve any aliases that could affect the
         # validity of this object.
-        self.transform(object) if transform
+        self.transform(object, alias_context: alias_context) if transform
         properties.each do |prop|
           # True if the property is available on the object
           prop_exists     = object.respond_to?(prop.name)
@@ -80,7 +80,10 @@ module Shark
       end
 
       # Perform any transformations that properties of this schema define.
-      def transform object
+      # `alias_context` is the object by which value aliases will be resolved.
+      def transform object, alias_context: nil
+        # By default, use the given object as the alias context
+        alias_context ||= object
         properties.each do |prop|
           # Determine if the property currently has a value on the object
           prop_is_defined = object.instance_variable_defined?("@#{prop.name}")
@@ -91,7 +94,7 @@ module Shark
           # If it was not defined, assume the default value for the property.
           given_value = prop_is_defined ? object.send(prop.name) : prop.default
           # Transform the value based on the property's definition
-          transformed_value = prop.transform_value(given_value, context: object)
+          transformed_value = prop.transform_value(given_value, context: alias_context)
           object.send("#{prop.name}=", transformed_value)
         end
         self

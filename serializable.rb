@@ -10,6 +10,7 @@ module Shark
     # ensuring that all values have their required properties (e.g.,
     # `serialized_attributes` must include `identifier`).
     def normalize_configuration!
+      configuration.validate!(context: self.class)
       configuration.serialized_attributes         |= [:identifier]
       configuration.nested_serialized_attributes  |= [:identifier]
       configuration.embed_associated_objects = begin

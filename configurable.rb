@@ -15,7 +15,7 @@ module Shark
     # validated after the block has returned.
     def configure validate: true, &block
       configuration.tap(&block)
-      configuration.__validate!(self) if validate
+      configuration.validate!(context: self) if validate
     end
 
     # Return the type to instantiate for the configuration object
