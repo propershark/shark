@@ -1,0 +1,2 @@
+# Data files are bound to grow very large, and there's no need to track them
+data/*
