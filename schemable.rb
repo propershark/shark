@@ -5,12 +5,17 @@ module Shark
   module Schemable
     # Return the current Schema object. If a `block` is given, it will first be
     # executed with the Schema object as the receiver before returning.
-    def schema **options, &block
+    # If a block is given and `validate_on_set` is true, the schema will be
+    # used to validate `self` after evaluating the block.
+    def schema validate_on_set: true, **options, &block
       @schema ||= Schema.new(**options)
       # Apply new options for the schema
       @schema.options.merge!(options)
       # Evaluate any schema definition that is given
-      @schema.instance_eval(&block) if block_given?
+      if block_given?
+        @schema.instance_eval(&block)
+        @schema.validate(self) if validate_on_set
+      end
       @schema
     end
     attr_writer :schema
