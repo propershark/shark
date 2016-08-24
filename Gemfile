@@ -10,3 +10,12 @@ gem 'httparty'
 gem 'tripspark_api'
 # API wrapper for DoubleMap systems
 gem 'doublemap_api'
+
+
+# Gems related to testing the system
+group :test do
+  gem 'rspec'
+  gem 'factory_girl'
+  gem 'faker'
+  gem 'simplecov'
+end
