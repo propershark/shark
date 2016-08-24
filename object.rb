@@ -39,8 +39,6 @@ module Shark
     include Configurable
     inherit_configuration_from self
     configuration.schema do
-      optional :embed_has_many_associations, default: true
-
       optional :serialized_attributes, default: :all do
         value_alias :all, real_value: ->{ attributes }
         value_alias nil,  real_value: []
