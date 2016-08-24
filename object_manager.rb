@@ -51,8 +51,8 @@ module Shark
     # any instance-level configurations, then applying those configurations to
     # attributes of this class.
     def initialize name, agency, &configurator
-      # Apply the configurator's options
-      configure &configurator
+      # Apply the optional configurator's options
+      configure &configurator if block_given?
       @name             = name
       @agency           = agency
       @active_objects   = Set.new
