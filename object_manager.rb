@@ -36,6 +36,8 @@ module Shark
     # value, but having a local reference to it simplifies code lines, and
     # allows for overrides if necessary.
     attr_accessor :storage
+    # The type that all objects that this manager creates will take on.
+    attr_accessor :klass
     # The frequency at which this manager should perform update cycles. That
     # is, how often the sources will be polled and events will be published.
     # Note that the owner of the manager is responsible for scheduling; this
