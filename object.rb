@@ -38,7 +38,7 @@ module Shark
 
     include Configurable
     inherit_configuration_from self
-    configuration.schema do
+    configuration.schema validate_on_set: false do
       optional :serialized_attributes, default: :all do
         value_alias :all, real_value: ->{ attributes }
         value_alias nil,  real_value: []
