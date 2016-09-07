@@ -155,7 +155,9 @@ module Shark
           topic: object.identifier,
           type: event_type.to_sym,
           args: [object],
-          kwargs: {},
+          kwargs: {
+            version: object.version
+          },
           originator: object.identifier
         ))
       end
