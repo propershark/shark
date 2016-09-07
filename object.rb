@@ -33,6 +33,12 @@ module Shark
       def identifier_for identifier
         "#{name.gsub(/^.*::/,'').downcase}s.#{identifier}"
       end
+
+      # Return the current version of this type, as set by its schema.
+      def version; schema.version; end
+      def version= new_version
+        schema.version = new_version
+      end
     end
     extend Schemable
 
@@ -99,6 +105,11 @@ module Shark
     # object.
     def has_association_to klass, ident
       @associated_objects[klass].include?(ident)
+    end
+
+    # Return the version of this object, as set by its schema.
+    def version
+      self.class.version
     end
 
 

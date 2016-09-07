@@ -11,6 +11,27 @@ module Shark
       end
     end
 
+    context '#version' do
+      it 'returns nil when a version has not been set' do
+        expect(Object.new.version).to be(nil)
+      end
+
+      it 'returns the current version when set explicitly' do
+        type1 = Class.new(Object)
+        type1.version = '1.0'
+        expect(type1.new.version).to eq('1.0')
+      end
+
+      it 'sets the version of the object\'s schema' do
+        type1 = Class.new(Object)
+        type1.version = '1.0'
+        expect(type1.schema.version).to eq('1.0')
+      end
+
+      it 'cannot be set at an instance level' do
+        expect{ Object.new.version = '1.0' }.to raise_error(NoMethodError)
+      end
+    end
 
     context '#initialize' do
       it 'gives a default value to #associated_objects' do

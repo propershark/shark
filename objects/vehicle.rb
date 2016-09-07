@@ -1,5 +1,7 @@
 module Shark
   class Vehicle < Object
+    self.version = '0.1.0'
+
     # [Integer] The identifying code for this vehicle
     attribute :code,            type: Integer,  nilable: true
     # [String] The (often) humanized name for this vehicle

@@ -5,6 +5,8 @@ module Shark
     # It includes methods for specifying optional and required properties,
     # each with potential type requirements and aliases for custom values.
     class Schema
+      # The current version number of the schema. Must be set manually.
+      attr_accessor :version
       # The set of `Property`s that have been defined for this schema.
       attr_accessor :properties
       # A simple set of options for this schema.
