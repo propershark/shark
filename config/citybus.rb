@@ -2,6 +2,7 @@
 require_relative './transport'
 require_relative './conductor'
 require_relative './validator'
+require_relative './normalizer'
 
 # Include configuration for Sources
 require_relative 'doublemap_source'
@@ -46,4 +47,5 @@ Shark::Agency.configure do |agency|
   agency.use_middleware Transport
   agency.use_middleware Conductor
   agency.use_middleware Validator
+  agency.use_middleware Normalizer
 end
