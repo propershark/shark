@@ -10,6 +10,8 @@ class Normalizer < Shark::Middleware
     iterate_arguments(event) do |arg, key|
       handler_for(arg)&.call(arg)
     end
+
+    fire(event)
   end
 
 
