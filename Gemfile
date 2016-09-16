@@ -12,6 +12,10 @@ gem 'tripspark_api'
 gem 'doublemap_api'
 
 
+# Option parsing for CLIs
+gem 'trollop'
+
+
 # Gems related to testing the system
 group :test do
   gem 'rspec'

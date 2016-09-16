@@ -47,6 +47,7 @@ GEM
     tripspark_api (0.1.1)
       httparty (~> 0.13)
       memoist (~> 0.14)
+    trollop (2.1.2)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
     wamp_client (0.0.5)
@@ -73,6 +74,7 @@ DEPENDENCIES
   rufus-scheduler
   simplecov
   tripspark_api
+  trollop
   wamp_client
 
 BUNDLED WITH

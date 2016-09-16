@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+require 'trollop'
+
+require_relative '../runner'
+
+
+opts = Trollop::options do
+  opt :config, 'Use this file as the agency configuration', short: 'c', default: 'config/agency.rb'
+  opt :environment, 'The running environment', short: 'e', default: 'production'
+  opt :insert_after, 'Insert the capture middleware after this one', short: 'i', type: String
+
+  opt :dry_run, 'Load everything, but don\'t actually do anything.', short: 'n'
+end
+
+
+runner = Shark::Runner.new(opts)
+# Only start if loading was successful
+runner.load&.start
