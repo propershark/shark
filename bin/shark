@@ -15,5 +15,4 @@ end
 
 
 runner = Shark::Runner.new(opts)
-# Only start if loading was successful
-runner.load&.start
+runner.start

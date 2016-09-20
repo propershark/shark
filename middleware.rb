@@ -40,6 +40,9 @@ module Shark
     end
 
 
+    attr_accessor :app, :storage
+
+
     # Create a new instance of this middleware, including a reference to the
     # app that is stacked above it.
     def initialize app, *args

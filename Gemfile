@@ -14,6 +14,9 @@ gem 'doublemap_api'
 
 # Option parsing for CLIs
 gem 'trollop'
+# Modular IRB replacement
+gem 'ripl'
+gem 'ripl-multi_line'
 
 
 # Gems related to testing the system
