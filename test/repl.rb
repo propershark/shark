@@ -35,6 +35,14 @@ module Shark
       def on topic, type, &block
         @event_handlers[[topic, type]] = block
       end
+
+      # Retrieve the last event of the given type published to the given topic.
+      #
+      # Example:
+      #   last :update, to: 'vehicles.4002'
+      def last type, to:
+        @events[to].find{ |event| event.type == type }
+      end
     end
   end
 end
