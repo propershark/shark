@@ -1,10 +1,13 @@
 require 'ripl'
 
+require_relative 'dsl'
+
 module Shark
   BINDING = binding
 
   module Test
     class REPL < Shark::Middleware
+      include DSL
       EVENT_HISTORY_LENGTH = 25
 
       attr_accessor :events
@@ -24,24 +27,6 @@ module Shark
 
         # Instantiate and execute a handler for the event based on its namespace.
         self.instance_exec(@events[event.topic], &@event_handlers[[event.topic, event.type]])
-      end
-
-      # Register a callback to execute when an event comes in.
-      #
-      # Callbacks are registered based on a topic and event type. Example:
-      #   on 'vehicles.4002', :update do
-      #     puts "Got an update event"
-      #   end
-      def on topic, type, &block
-        @event_handlers[[topic, type]] = block
-      end
-
-      # Retrieve the last event of the given type published to the given topic.
-      #
-      # Example:
-      #   last :update, to: 'vehicles.4002'
-      def last type, to:
-        @events[to].find{ |event| event.type == type }
       end
     end
   end
