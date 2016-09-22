@@ -82,11 +82,14 @@ module Shark
           middleware_stack.last.app = repl
         end
 
-        # Remove Transport middlewares from the stack
+        # Remove Transport middlewares from the stack to avoid publishing
+        # events while in the test environment.
         transport_idx = middleware_stack.find_index{ |middleware| middleware.is_a?(Transport) }
-        previous = middleware_stack[transport_idx-1]
-        transport = previous.app
-        previous.app = transport.app
+        if transport_idx
+          previous = middleware_stack[transport_idx-1]
+          transport = previous.app
+          previous.app = transport.app
+        end
       end
   end
 end
