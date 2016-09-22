@@ -65,7 +65,10 @@ module Shark
     def create_middlewares
       instance_list = []
       @middleware = configuration.middlewares.inject(nil) do |app, (klass, args, kwargs, config)|
-        klass.new(app, *args, **kwargs, &config).tap{ |inst| instance_list << inst }
+        klass.new(app, *args, **kwargs, &config).tap do |inst|
+          instance_list << inst
+          klass.installed(self)
+        end
       end
       # Some Middlewares will use background threads to process work. By
       # sleeping for a short time between checks, those threads can work

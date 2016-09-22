@@ -40,6 +40,17 @@ module Shark
     end
 
 
+    # A callback to be run when a Middleware instance of this type is
+    # installed in an Agency.
+    def self.on_install &block
+      @installed_callback = block
+    end
+
+    def self.installed agency
+      @installed_callback&.call(agency)
+    end
+
+
     attr_accessor :app, :storage
 
 
