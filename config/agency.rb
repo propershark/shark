@@ -44,8 +44,8 @@ Shark::Agency.configure do |agency|
   end
 
 
-  agency.use_middleware Transport
-  agency.use_middleware Conductor
-  agency.use_middleware Validator
   agency.use_middleware Normalizer
+  agency.use_middleware Validator
+  agency.use_middleware Conductor
+  agency.use_middleware Transport
 end

@@ -15,4 +15,4 @@ end
 
 
 runner = Shark::Runner.new(opts)
-runner.start
+runner.start unless opts[:dry_run]

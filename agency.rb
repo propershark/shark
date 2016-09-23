@@ -37,14 +37,14 @@ module Shark
     attr_accessor :managers
     # The first Middleware instance in the stack of middlewares that are
     # attached to this agency
-    attr_accessor :middleware
+    attr_accessor :app
 
 
     def initialize
       @scheduler = Rufus::Scheduler.new
       create_managers
-      create_middlewares
     end
+
 
     # "Start" this agency by scheduling all activities that it performs to run
     # in the background (via the scheduler)
@@ -52,28 +52,12 @@ module Shark
       schedule_managers
     end
 
+
     # Initialize all of the object managers defined by the configuration
     def create_managers
       @managers = configuration.managers.each_with_object({}) do |(name, configurator), hash|
         hash[name] = ObjectManager.new(name, self, &configurator)
       end
-    end
-
-    # Instantiate and attach the list of Middleware classes for this agency.
-    # This method will block until all middleware instances are fully
-    # initialized (their `ready?` method returns true).
-    def create_middlewares
-      instance_list = []
-      @middleware = configuration.middlewares.inject(nil) do |app, (klass, args, kwargs, config)|
-        klass.new(app, *args, **kwargs, &config).tap do |inst|
-          instance_list << inst
-          klass.installed(self)
-        end
-      end
-      # Some Middlewares will use background threads to process work. By
-      # sleeping for a short time between checks, those threads can work
-      # concurrently instead of each one blocking serially.
-      sleep(0.1) until instance_list.drop_while(&:ready?).empty?
     end
 
     # Register the managers with the scheduler to update at the interval
@@ -92,11 +76,12 @@ module Shark
       @managers.values.map(&:update)
     end
 
+
     # Proxy an event to the middleware stack. Each middleware entry is
     # responsible for passing the event to the next entry, so simply proxying
     # to the first entry is enough.
     def call event
-      @middleware.call(event)
+      @app.call(event)
     end
   end
 end
