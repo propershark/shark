@@ -22,7 +22,11 @@ class Conductor
     end
 
     # Create an association on the next station this vehicle will arrive at.
-    associate(vehicle.next_station, to: vehicle)
+    # Only create the association if `last_station` does not equal
+    # `next_station`, in case data sources are not yet in sync.
+    if vehicle.last_station != vehicle.next_station
+      associate(vehicle.next_station, to: vehicle)
+    end
 
     # Ensure that the Route has an association to the vehicle.
     associate(vehicle.route, to: vehicle)
