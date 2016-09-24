@@ -1,6 +1,7 @@
 module TripSparkSource
   class RouteSource < Source
     def refresh
+      api.flush_cache
       # For each route, create a hash of the values of each attribute and add
       # that hash to the data hash, indexed by the primary key specified in
       # the configuration of this Source.

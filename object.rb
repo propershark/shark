@@ -96,9 +96,14 @@ module Shark
       @associated_objects[klass].delete?(ident) != nil
     end
 
-    # Remove all associations of the given type from this object.
-    def dissociate_all klass
-      @associated_objects[klass].clear
+    # Remove all associations of the given type from this object. If no type is
+    # given, all associations will be removed.
+    def dissociate_all klass=nil
+      if klass
+        @associated_objects[klass].clear
+      else
+        @associated_objects.clear
+      end
     end
 
     # Return true if this object has an association record with the given

@@ -1,6 +1,7 @@
 module DoubleMapSource
   class RouteSource < Source
     def refresh
+      api.flush_cache
       @data = api.routes.all.map do |route|
         attrs = @route_attributes.each_with_object({}) do |(prop, name), h|
           h[prop] = route.send(name)

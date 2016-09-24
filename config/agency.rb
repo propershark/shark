@@ -36,7 +36,7 @@ Shark::Agency.configure do |agency|
   # Create a manager for Vehicle objects
   agency.use_manager :vehicle_manager do |manager|
     manager.object_type       = Shark::Vehicle
-    manager.update_frequency  = '2s'
+    manager.update_frequency  = '5s'
 
     # Vehicle information comes from DoubleMap and CityBus
     manager.source_from :doublemap
