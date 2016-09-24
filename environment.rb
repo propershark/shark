@@ -99,6 +99,7 @@ module Shark
       # Create the middleware instances to be used in this session, and store
       # them in `middleware_stack`.
       def load_middlewares
+        middleware_stack << agency
         # The middlewares to be used are determined by the agency configuration.
         agency.configuration.middlewares.each do |klass, args, kwargs, config|
           middleware_stack << klass.new(nil, *args, **kwargs, &config)
@@ -108,7 +109,6 @@ module Shark
         # sleeping for a short time between checks, those threads can work
         # concurrently instead of each one blocking serially.
         sleep(0.1) until middleware_stack.drop_while(&:ready?).empty?
-        middleware_stack.unshift(agency)
       end
 
       # Apply the ordering of `middleware_stack` onto the Middleware instances.

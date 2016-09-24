@@ -21,7 +21,7 @@ require_relative 'middleware'
 
 
 module Shark
-  class Agency
+  class Agency < Shark::Middleware
     class << self
       include Configurable
       use_configuration_type AgencyConfiguration
@@ -35,9 +35,6 @@ module Shark
     attr_accessor :scheduler
     # The ObjectManager instances for the services provided by this Agency
     attr_accessor :managers
-    # The first Middleware instance in the stack of middlewares that are
-    # attached to this agency
-    attr_accessor :app
 
 
     def initialize
@@ -81,7 +78,7 @@ module Shark
     # responsible for passing the event to the next entry, so simply proxying
     # to the first entry is enough.
     def call event
-      @app.call(event)
+      fire(event)
     end
   end
 end
