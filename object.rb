@@ -1,6 +1,7 @@
 require 'set'
 
 require_relative 'serializable'
+require_relative 'dirtiable'
 
 module Shark
   # Wrapping class for objects to allow hash-based initialization and updating
@@ -40,6 +41,10 @@ module Shark
         schema.version = new_version
       end
     end
+    # Dirtiable must be included before extending Schemable to ensure that
+    # attributes defined through Schemable use Dirtiable's override of
+    # `attr_accessor` and `attr_writer.
+    include Dirtiable
     extend Schemable
 
     include Configurable
