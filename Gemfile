@@ -10,6 +10,7 @@ gem 'httparty'
 gem 'tripspark_api'
 # API wrapper for DoubleMap systems
 gem 'doublemap_api'
+gem 'bart_api', :path => '~/ps/bart_api'
 
 
 # Option parsing for CLIs
@@ -25,4 +26,9 @@ group :test do
   gem 'factory_girl'
   gem 'faker'
   gem 'simplecov'
+end
+
+group :development do
+  gem 'pry'
+  gem 'pry-byebug'
 end
