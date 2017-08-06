@@ -3,7 +3,7 @@ module Shark
     self.version = '0.1.0'
 
     # [Integer] The identifying code for this station
-    attribute :code,            type: Integer,  nilable: true
+    attribute :code,            type: String,  nilable: true
     # [String] The (often) humanized name for this station
     attribute :name,            type: String
     # [String] The name of this route used on maps and signs to quickly
