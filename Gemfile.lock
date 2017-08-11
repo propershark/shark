@@ -1,5 +1,6 @@
-PATH
-  remote: ~/ps/bart_api
+GIT
+  remote: https://github.com/propershark/bart_api.git
+  revision: db0a3122987ddf6866c9b3cf75a44935eff8d368
   specs:
     bart_api (0.1.0)
       httparty (~> 0.13)
