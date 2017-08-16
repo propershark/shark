@@ -2,7 +2,7 @@ require_relative '../middlewares/transport'
 
 Transport.configure do |config|
   config.wamp = {
-    uri:          'ws://shark-nyc1.transio.us:8080/ws/',
+    uri:          'ws://127.0.0.1:8080/ws/',
     realm:        'realm1',
     authid:       'tester2',
     authmethods:  ['anonymous']
