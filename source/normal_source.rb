@@ -59,6 +59,19 @@ module Shark
           manager.activate(object)
         end
       end
+
+      def valid?(_)
+        true
+      end
+
+      def check_valid object
+        if valid? object
+          true
+        else
+          puts "Invalid object on #{self}: #{object.inspect}" 
+          false
+        end
+      end
     end
   end
 end

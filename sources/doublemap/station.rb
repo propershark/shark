@@ -5,7 +5,7 @@ module DoubleMapSource
       # For each station, create a hash of the values of each attribute and add
       # that hash to the data hash, indexed by the primary key specified in
       # the configuration of this Source.
-      @data = api.stops.all.map do |stop|
+      @data = api.stops.all.select{ |s| check_valid s }.map do |stop|
         attrs = @station_attributes.map{ |prop, name| [prop, stop.send(name)] }.to_h
         # NOTE: This is a little awkward and brittle, but it ensures that
         # stop_code (which is often the primary_attribute of a Station) is set
@@ -13,6 +13,11 @@ module DoubleMapSource
         attrs[:stop_code] = @station_key.call(stop)
         ["stations."+@station_key.call(stop), attrs]
       end.to_h
+    end
+
+    def valid?(stop)
+      @station_key.call(stop) and
+        @station_attributes.values.all? { |v| stop.respond_to? v }
     end
   end
 
