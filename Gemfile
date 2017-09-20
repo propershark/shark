@@ -9,7 +9,7 @@ gem 'httparty'
 # API wrapper for TripSpark systems
 gem 'tripspark_api'
 # API wrapper for DoubleMap systems
-gem 'doublemap_api'
+gem 'doublemap_api', '~>2.1.0'
 
 
 # Option parsing for CLIs
@@ -25,4 +25,10 @@ group :test do
   gem 'factory_girl'
   gem 'faker'
   gem 'simplecov'
+end
+
+
+group :development do
+  gem 'pry'
+  gem 'pry-byebug'
 end
