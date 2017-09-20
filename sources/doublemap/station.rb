@@ -16,7 +16,7 @@ module DoubleMapSource
     end
 
     def valid?(stop)
-      @station_key.call(stop) and
+      @station_key.call(stop) &&
         @station_attributes.values.all? { |v| stop.respond_to? v }
     end
   end

@@ -16,7 +16,7 @@ module DoubleMapSource
     end
 
     def valid?(vehicle)
-      @vehicle_key.call(vehicle) and
+      @vehicle_key.call(vehicle) &&
         @vehicle_attributes.values.all? { |v| vehicle.respond_to? v } 
     end
   end

@@ -19,7 +19,7 @@ module DoubleMapSource
     end
 
     def valid?(route)
-      @route_key.call(route) and
+      @route_key.call(route) &&
         @route_attributes.values.all? { |v| route.respond_to? v }
     end
   end
